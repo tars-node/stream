@@ -25,5 +25,6 @@
         "mocha" : "latest",
         "should": "latest"
     },
-    "readmeFilename": "README.md"
+    "readmeFilename": "README.md",
+    "license" : "BSD-3-Clause"
 }
