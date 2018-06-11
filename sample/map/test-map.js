@@ -1,4 +1,4 @@
-var TarsStream = require("../../TarsStream");
+var TarsStream = require("../../tars");
 
 //类型定义示例
 var m = new TarsStream.Map(TarsStream.String, TarsStream.String);

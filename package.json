@@ -1,6 +1,6 @@
 {
 	"name"          : "@tars/stream",
-  	"version"       : "0.0.1",
+  	"version"       : "2.0.0",
     "main"          : "tars.js",
     "description"   : "A library for TARS Encode/Decode(TARS TUP)",
   	"homepage"      : "",
@@ -21,9 +21,8 @@
         "type": "git",
         "url" : ""
     },
-    "devDependencies": {
-        "mocha" : "latest",
-        "should": "latest"
+    "dependencies": {
+      "big.js": "^3.1.3"
     },
     "readmeFilename": "README.md",
     "license" : "BSD-3-Clause"

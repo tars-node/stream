@@ -1,4 +1,4 @@
-var TarsStream = require("../../TarsStream");
+var TarsStream = require("../../tars");
 
 //STEP01 - 声明数组
 var list = new TarsStream.List(TarsStream.String);

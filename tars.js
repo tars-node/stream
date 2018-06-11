@@ -1,11 +1,9 @@
-/**
- * KevinTian@tencent.com
- *
- * NodeJs版本编解码
- */
 var assert = require("assert");
 var util   = require("util");
+var Big = require('big.js');
 var Tars    = module.exports = {};
+var BIT32 = 4294967296;
+var BIT31 = BIT32 / 2;
 
 /**
  * 异常类
@@ -53,7 +51,7 @@ Tars.TupNotFoundKey = function ($message) {
 util.inherits(Tars.TupNotFoundKey, Tars.Exception);
 
 /**
- * 编解码底层辅助类
+ * TARS编解码底层辅助类
  */
 Tars.DataHelp = {
     EN_INT8         : 0,
@@ -97,8 +95,8 @@ Tars.Int32 = {
 };
 
 Tars.Int64 = {
-    _write      : function(os, tag, val) { return os.writeInt64(tag, val); },
-    _read       : function(is, tag, def) { return is.readInt64(tag, true, def); },
+    _write      : function(os, tag, val, bString) { return os.writeInt64(tag, val, bString); },
+    _read       : function(is, tag, def, bString) { return is.readInt64(tag, true, def, bString); },
     _classname  : "int64"
 };
 
@@ -145,16 +143,17 @@ Tars.Enum    = {
 };
 
 /**
- * Tars-List实现类
+ * TARS-List实现类
  */
-var HeroList = function (proto) {
+var HeroList = function (proto, bValue) {
     this._proto     = proto;
+    this._bValue = bValue || 0;
     this.value      = new Array();
     this._classname = "List<" + proto._classname + ">";
 };
 
-HeroList.prototype._write  = function(os, tag, val) { return os.writeList(tag, val); };
-HeroList.prototype._read   = function(is, tag, def) { return is.readList(tag, true, def); };
+HeroList.prototype._write  = function(os, tag, val, bRaw, bString) { return os.writeList(tag, val, bRaw, bString); };
+HeroList.prototype._read   = function(is, tag, def, bRaw, bString) { return is.readList(tag, true, def, bRaw, bString); };
 HeroList.prototype.new     = function() { return new HeroList(this._proto); };
 HeroList.prototype.at      = function(index) { return this.value[index]; };
 HeroList.prototype.push    = function(value) { this.value.push(value); };
@@ -190,23 +189,25 @@ HeroList.prototype.readFromObject = function (json) {
 
 HeroList.prototype.__defineGetter__("length", function () { return this.value.length; });
 
-Tars.List = function(proto) {
-    return new HeroList(proto);
+Tars.List = function(proto, bValue) {
+    return new HeroList(proto, bValue);
 };
 
 /**
- * Tars-Map实现类
+ * TARS-Map实现类
  */
-var MultiMap = function(kproto, vproto) {
+var MultiMap = function(kproto, vproto, bKey, bValue) {
     this._kproto    = kproto;
     this._vproto    = vproto;
+    this._bKey = bKey || 0;
+    this._bValue = bValue || 0;
     this.keys       = new Object();
     this.value      = new Object();
     this._classname = "map<" + kproto._classname + "," + vproto._classname + ">";
 };
 
-MultiMap.prototype._write  = function(os, tag, val)   { return os.writeMap(tag, val);           };
-MultiMap.prototype._read   = function(is, tag, def)   { return is.readMap(tag, true, def);      };
+MultiMap.prototype._write  = function(os, tag, val, bRaw)   { return os.writeMap(tag, val, bRaw);           };
+MultiMap.prototype._read   = function(is, tag, def, bRaw)   { return is.readMap(tag, true, def, bRaw);      };
 MultiMap.prototype.put     = function(key, value)     { this.insert(key, value);                };
 MultiMap.prototype.set     = function(key, value)     { this.insert(key, value);                };
 MultiMap.prototype.remove  = function(key)            { delete this.keys[key._genKey()]; delete this.value[key._genKey()]; };
@@ -264,9 +265,11 @@ MultiMap.prototype.readFromObject = function () {
     assert(false, "multimap has no toObject readFromObject");
 }
 
-var HeroMap = function (kproto, vproto) {
+var HeroMap = function (kproto, vproto, bKey, bValue) {
     this._kproto    = kproto;
     this._vproto    = vproto;
+    this._bKey = bKey || 0;
+    this._bValue = bValue || 0;
     this.value      = new Object();
     this._classname = "map<" + kproto._classname + "," + vproto._classname + ">";
 }
@@ -282,7 +285,7 @@ HeroMap.prototype.has     = function(key)            { return this.value.hasOwnP
 HeroMap.prototype.insert  = function(key, value)     { this.value[key] = value;                            }
 HeroMap.prototype.get     = function(key)            { return this.value[key];                             }
 HeroMap.prototype.clear   = function()               { delete this.value; this.value = new Object();       }
-HeroMap.prototype.forEach = function(callback)       {
+HeroMap.prototype.forEach = function(callback, bKey)       {
     var keys = Object.keys(this.value || {});
     for(var i = 0; i < keys.length; i++)
     {
@@ -291,13 +294,17 @@ HeroMap.prototype.forEach = function(callback)       {
             case Tars.Int8:
             case Tars.Int16:
             case Tars.Int32:
-            case Tars.Int64:
             case Tars.UInt8:
             case Tars.UInt16:
             case Tars.UInt32:
             case Tars.Float:
             case Tars.Double:
                 key=Number(key);
+                break;
+            case Tars.Int64:
+                if(!bKey){
+                    key=Number(key);
+                }
                 break;
         }
         if (callback.call(null, key, this.value[key]) == false)
@@ -334,46 +341,33 @@ HeroMap.prototype.readFromObject = function (json) {
     }
 };
 
-Tars.Map = function(kproto, vproto) {
+Tars.Map = function(kproto, vproto, bKey, bValue) {
     if (kproto.prototype && kproto.prototype._equal) {
-        return new MultiMap(kproto, vproto);
+        return new MultiMap(kproto, vproto, bKey, bValue);
     }
 
-    return new HeroMap(kproto, vproto);
+    return new HeroMap(kproto, vproto, bKey, bValue);
 }
 
 /**
  * 适用于NodeJS支持的Buffer的实现类
  */
-//升级Buffer内存分配方式，node 6.x支持Buffer.allocUnsafe(size)
-Tars.createNodeBuffer=function(){};
-Tars.initializeBufferCreator=function(){
-    var nodeversion=process.version.match(/^v(\d)/)[1];
-    //6.x+版本
-    if(nodeversion>=6){
-        this.createNodeBuffer=function(data){
-            if(util.isNumber(data)){
-                return Buffer.allocUnsafe(data);
-            }
-            if(Array.isArray(data) || Buffer.isBuffer(data) || typeof data==="string" || data instanceof ArrayBuffer){
-                return Buffer.from(data);
-            }
-            throw new Error("can not create buffer by "+typeof data+" in nodejs v6+");
+var createNodeBuffer = (function () {
+    if ('allocUnsafe' in Buffer) {
+        return function (data) {
+            return Buffer.allocUnsafe(data);
         }
-    }
-    //6.x以下版本
-    else{
-        this.createNodeBuffer=function(data){
+    } else {
+        return function (data) {
             return new Buffer(data);
         }
     }
-}
-Tars.initializeBufferCreator();
+}());
 
 Tars.BinBuffer = function (buffer) {
     if(!buffer)
     {
-        buffer = Tars.createNodeBuffer([]);
+        buffer = createNodeBuffer(0);
     }
     this._buffer    = (buffer != undefined && buffer instanceof Buffer)?buffer:null;
     this._length    = (buffer != undefined && buffer instanceof Buffer)?buffer.length:0;
@@ -399,6 +393,12 @@ Tars.BinBuffer.new = function () {
     return new Tars.BinBuffer();
 }
 
+Tars.BinBuffer.from = function (data) {
+    var binBuffer = new Tars.BinBuffer();
+    binBuffer.writeString(data);
+    return binBuffer;
+}
+
 Tars.BinBuffer.prototype.reset = function () {
     this._length    = 0;
     this._position  = 0;
@@ -410,7 +410,7 @@ Tars.BinBuffer.prototype._allocate = function (byteLength) {
     }
 
     this._capacity = Math.max(512, (this._position + byteLength) * 2);
-    var temp = Tars.createNodeBuffer(this._capacity);
+    var temp = createNodeBuffer(this._capacity);
     if (this._buffer != null) {
         this._buffer.copy(temp, 0, 0, this._position);
         this._buffer = undefined;
@@ -471,16 +471,30 @@ Tars.BinBuffer.prototype.writeUInt32 = function (value) {
     this._length = this._position;
 }
 
-Tars.BinBuffer.prototype.writeInt64  = function (value) {
-    value = +value;
-    if (value > 0){
-        var H4 = Math.floor(value/4294967296);
-        var L4 = value - H4 * 4294967296;
-    }
-    else {
-        var H4 = Math.floor(value/4294967296);
-        var L4 = value - H4 * 4294967296;
-        H4 += 4294967296;
+Tars.BinBuffer.prototype.writeInt64  = function (value, bString) {
+    var H4, L4;
+    if (bString === true || bString === 1) {
+        //字符串int64写入，支持int64精度
+        var val = new Big(value);
+        if (val.s === 1) {
+            H4 = +val.div(BIT32).round(0,0).toString();
+            L4 = +val.mod(BIT32).toString();
+        } else {
+            H4 = val.div(BIT32).round(0,3);
+            L4 = +val.minus((new Big(H4)).times(BIT32)).toString();
+            H4 = +H4.plus(BIT32).toString();
+        }
+    } else {
+        //Number写入，支持到2^53-1的精度
+        var val = +value;
+        if (val > 0){
+            H4 = Math.floor(val/BIT32);
+            L4 = val - H4 * BIT32;
+        } else {
+            H4 = Math.floor(val/BIT32);
+            L4 = val - H4 * BIT32;
+            H4 += BIT32;
+        }
     }
 
     this._allocate(8);
@@ -505,7 +519,7 @@ Tars.BinBuffer.prototype.writeDouble = function (value) {
 }
 
 Tars.BinBuffer.prototype.writeString = function (value, ByteLength, bRaw) {
-    if (bRaw != undefined && bRaw == true) {
+    if (bRaw === true || bRaw === 1) {
         this._allocate(ByteLength);
         value.copy(this._buffer, this._position);
         this._position += ByteLength;
@@ -527,7 +541,7 @@ Tars.BinBuffer.prototype.writeBinBuffer = function (srcBinBuffer) {
     if (srcBinBuffer._length == 0 || srcBinBuffer._buffer == null) return ;
 
     this._allocate(srcBinBuffer.length);
-    srcBinBuffer._buffer.copy(this._buffer, this._position, 0, srcBinBuffer._length);    
+    srcBinBuffer._buffer.copy(this._buffer, this._position, 0, srcBinBuffer._length);
     this._position += srcBinBuffer._length;
     this._length = this._position;
 }
@@ -571,15 +585,24 @@ Tars.BinBuffer.prototype.readUInt32 = function () {
     return this._buffer.readUInt32BE(this._position - 4);
 }
 
-Tars.BinBuffer.prototype.readInt64 = function() {
+Tars.BinBuffer.prototype.readInt64 = function(bString) {
     var H4 = this._buffer.readUInt32BE(this._position);
-    var L4 = this._buffer.readUInt32BE(this._position + 4); 
+    var L4 = this._buffer.readUInt32BE(this._position + 4);
     this._position += 8;
-
-    if (H4 < 2147483648) {
-        return H4 * 4294967296 + L4;
+    //字符串格式读出，支持int64精度
+    if (bString === true || bString === 1) {
+        if (H4 < BIT31) {
+            return new Big(H4).times(BIT32).plus(L4).toString();
+        } else {
+            H4 = BIT32 - 1 - H4;
+            return '-' + (new Big(H4)).times(BIT32).plus(BIT32 - L4).toString();
+        }
+    }
+    //Number读出，支持到 2^53 - 1 的精度
+    if (H4 < BIT31) {
+        return H4 * BIT32 + L4;
     } else {
-        return -((4294967296 - L4) + 4294967296 * (4294967296 - 1 - H4));
+        return -((BIT32 - L4) + BIT32 * (BIT32 - 1 - H4));
     }
 }
 
@@ -595,9 +618,9 @@ Tars.BinBuffer.prototype.readDouble = function() {
 
 Tars.BinBuffer.prototype.readString = function (byteLength, bRaw) {
 
-    var temp = Tars.createNodeBuffer(byteLength);
+    var temp = createNodeBuffer(byteLength);
     var ret;
-    if (bRaw != undefined && bRaw == true) {
+    if (bRaw === true || bRaw === 1) {
         this._buffer.copy(temp, 0, this._position, this._position + byteLength);
         this._position += byteLength;
         return temp;
@@ -610,14 +633,10 @@ Tars.BinBuffer.prototype.readString = function (byteLength, bRaw) {
         if(temp[0] & 0x80)
         {
             ret = temp.toString("binary", 0, temp.length);
-        }
-        else
-        {
+        } else {
             ret = temp.toString("utf8", 0, temp.length);
         }
-    }
-    else
-    {
+    } else {
         ret = temp.toString("utf8", 0, temp.length);
     }
 
@@ -642,19 +661,20 @@ Tars.BinBuffer.prototype.readBinBuffer = function (byteLength, bReuse) {
 }
 
 Tars.BinBuffer.prototype.toNodeBuffer = function () {
-    var temp = Tars.createNodeBuffer(this._length);
+    var temp = createNodeBuffer(this._length);
     this._buffer.copy(temp, 0, 0, this._length);
-    return temp; 
+    return temp;
+}
+
+Tars.BinBuffer.prototype.toNodeBufferUnSafe = function () {
+    return this._buffer.slice(0, this._length);
 }
 
 Tars.BinBuffer.prototype.toObject = function () {
     return this.toNodeBuffer();
 }
 
-Tars.BinBuffer.prototype.readFromObject = function (json) {
-    this.writeNodeBuffer(Tars.createNodeBuffer(json.data||json));
-    return this;
-}
+Tars.BinBuffer.prototype.readFromObject = Tars.BinBuffer.prototype.writeNodeBuffer;
 
 Tars.BinBuffer.prototype.print = function() {
     var str  = "";
@@ -666,7 +686,7 @@ Tars.BinBuffer.prototype.print = function() {
 }
 
 /**
- * Tars-输出编解码包裹类
+ * tars输出编解码包裹类
  */
 Tars.OutputStream = function () {
     this._binBuffer = new Tars.BinBuffer;
@@ -675,8 +695,7 @@ Tars.OutputStream = function () {
 Tars.OutputStream.prototype._writeTo = function (tag, type) {
     if (tag < 15) {
         this._binBuffer.writeUInt8((tag << 4 & 0xF0) | type);
-    }
-    else {
+    } else {
         this._binBuffer.writeUInt16((0xF0 | type) << 8 | tag);
     }
 }
@@ -699,8 +718,7 @@ Tars.OutputStream.prototype.writeInt8 = function (tag, value) {
     value = +value;
     if (value == 0) {
         this._writeTo(tag, Tars.DataHelp.EN_ZERO);
-    }
-    else {
+    } else {
         this._writeTo(tag, Tars.DataHelp.EN_INT8);
         this._binBuffer.writeInt8(value);
     }
@@ -710,8 +728,7 @@ Tars.OutputStream.prototype.writeInt16 = function (tag, value) {
     value = +value;
     if (value >= -128 && value <= 127) {
         this.writeInt8(tag, value);
-    }
-    else {
+    } else {
         this._writeTo(tag, Tars.DataHelp.EN_INT16);
         this._binBuffer.writeInt16(value);
     }
@@ -721,22 +738,20 @@ Tars.OutputStream.prototype.writeInt32 = function (tag, value) {
     value = +value;
     if (value >= -32768 && value <= 32767) {
         this.writeInt16(tag, value);
-    }
-    else {
+    } else {
         this._writeTo(tag, Tars.DataHelp.EN_INT32);
         this._binBuffer.writeInt32(value);
     }
 }
 
-Tars.OutputStream.prototype.writeInt64 = function (tag, value) {
-    value = +value;
-    if (value >= -2147483648 && value <= 2147483647) {
-        this.writeInt32(tag, value);
+Tars.OutputStream.prototype.writeInt64 = function (tag, value, bString) {
+    var val = +value;
+    if (val >= -2147483648 && val <= 2147483647) {
+        this.writeInt32(tag, val);
+        return;
     }
-    else {
-        this._writeTo(tag, Tars.DataHelp.EN_INT64);
-        this._binBuffer.writeInt64(value);
-    }
+    this._writeTo(tag, Tars.DataHelp.EN_INT64);
+    this._binBuffer.writeInt64(value, bString);
 }
 
 Tars.OutputStream.prototype.writeUInt8 = function (tag, value) {
@@ -754,8 +769,7 @@ Tars.OutputStream.prototype.writeUInt32 = function (tag, value) {
 Tars.OutputStream.prototype.writeFloat = function (tag, value) {
     if (value == 0) {
         this._writeTo(tag, Tars.DataHelp.EN_ZERO);
-    }
-    else {
+    } else {
         this._writeTo(tag, Tars.DataHelp.EN_FLOAT);
         this._binBuffer.writeFloat(value);
     }
@@ -764,8 +778,7 @@ Tars.OutputStream.prototype.writeFloat = function (tag, value) {
 Tars.OutputStream.prototype.writeDouble = function (tag, value) {
     if (value == 0) {
         this._writeTo(tag, Tars.DataHelp.EN_ZERO);
-    }
-    else {
+    } else {
         this._writeTo(tag, Tars.DataHelp.EN_DOUBLE);
         this._binBuffer.writeDouble(value);
     }
@@ -787,8 +800,7 @@ Tars.OutputStream.prototype.writeString = function (tag, value, bRaw) {
         if (byteLength > 255) {
             this._writeTo(tag, Tars.DataHelp.EN_STRING4);
             this._binBuffer.writeUInt32(byteLength);
-        }
-        else {
+        } else {
             this._writeTo(tag, Tars.DataHelp.EN_STRING1);
             this._binBuffer.writeUInt8(byteLength);
         }
@@ -801,8 +813,7 @@ Tars.OutputStream.prototype.writeString = function (tag, value, bRaw) {
     if (byteLength > 255) {
         this._writeTo(tag, Tars.DataHelp.EN_STRING4);
         this._binBuffer.writeUInt32(byteLength);
-    }
-    else {
+    } else {
         this._writeTo(tag, Tars.DataHelp.EN_STRING1);
         this._binBuffer.writeUInt8(byteLength);
     }
@@ -816,12 +827,19 @@ Tars.OutputStream.prototype.writeBytes = function (tag, value) {
     this.writeInt32(0, value.length);
     this._binBuffer.writeBinBuffer(value);
 }
-
+var writeListDeprecateWarnning = util.deprecate(function(){},"bRaw in writeList is deprecated, use List(TarsStream.String, bRaw) instead")
 Tars.OutputStream.prototype.writeList = function (tag, value, bRaw) {
     this._writeTo(tag, Tars.DataHelp.EN_LIST);
     this.writeInt32(0, value.length);
+    //3.0.21版本之前通过writeList(xxx, true)来表示字符串转buffer，long转string表示
+    //3.0.21版本之后通过构造 List<T, bValue>来表示是否转换，这里以后要废弃掉
+    if(bRaw === true ){
+        writeListDeprecateWarnning();
+    }
+    var bValue = value._bValue || bRaw;
+
     for (var i = 0, len = value.value.length; i < len; i++) {
-        value._proto._write(this, 0, value.value[i], bRaw);
+        value._proto._write(this, 0, value.value[i], bValue);
     }
 }
 
@@ -830,10 +848,14 @@ Tars.OutputStream.prototype.writeMap  = function (tag, value) {
     this.writeInt32(0, value.size());
 
     var self = this;
+    var bKey = value._bKey, bValue = value._bValue;
+    if(value._kproto == Tars.String){
+        bKey = false;
+    }
     value.forEach(function (key, val){
-        value._kproto._write(self, 0, key);
-        value._vproto._write(self, 1, val);
-    });
+        value._kproto._write(self, 0, key, bKey);
+        value._vproto._write(self, 1, val, bValue);
+    }, bKey);
 }
 
 Tars.OutputStream.prototype.getBinBuffer = function() {
@@ -841,7 +863,7 @@ Tars.OutputStream.prototype.getBinBuffer = function() {
 }
 
 /**
- * Tars-输入编解码包裹类
+ * TARS-TARS输入编解码包裹类
  */
 Tars.InputStream = function (binBuffer) {
     this._binBuffer = binBuffer;
@@ -898,7 +920,7 @@ Tars.InputStream.prototype._skipField = function (type) {
                 var head = this._readFrom();
                 this._skipField(head.type);
             }
-            
+
             break;
         }
         case Tars.DataHelp.EN_SIMPLELIST : {
@@ -933,17 +955,20 @@ Tars.InputStream.prototype._skipToStructEnd = function () {
         }
     }
 }
-
 Tars.InputStream.prototype._skipToTag = function (tag, require) {
     while (this._binBuffer._position < this._binBuffer._length) {
         var head = this._peekFrom();
+        //记录tag的位置，struct随读随解码
+        if(this._tagPosMap){
+            this._tagPosMap[head.tag] = this._binBuffer._position;
+            this._tagPosMap._current = this._binBuffer._position;
+        }
         if (tag <= head.tag || head.type == Tars.DataHelp.EN_STRUCTEND) {
             if ((head.type === Tars.DataHelp.EN_STRUCTEND)?false:(tag === head.tag)) {
                 return true;
             }
             break;
         }
-
         this._binBuffer._position += head.size;
         this._skipField(head.type);
     }
@@ -995,7 +1020,7 @@ Tars.InputStream.prototype.readInt32 = function (tag, requrire, DEFAULT_VALUE) {
     throw new Tars.DecodeMismatch("read int8 type mismatch, tag:" + tag + ", get type:" + head.type);
 }
 
-Tars.InputStream.prototype.readInt64 = function (tag, require, DEFAULT_VALUE) {
+Tars.InputStream.prototype.readInt64 = function (tag, require, DEFAULT_VALUE, bString) {
     if (this._skipToTag(tag, require) == false) { return DEFAULT_VALUE; }
 
     var head = this._readFrom();
@@ -1004,9 +1029,9 @@ Tars.InputStream.prototype.readInt64 = function (tag, require, DEFAULT_VALUE) {
         case Tars.DataHelp.EN_INT8   : return this._binBuffer.readInt8();
         case Tars.DataHelp.EN_INT16  : return this._binBuffer.readInt16();
         case Tars.DataHelp.EN_INT32  : return this._binBuffer.readInt32();
-        case Tars.DataHelp.EN_INT64  : return this._binBuffer.readInt64();
+        case Tars.DataHelp.EN_INT64  : return this._binBuffer.readInt64(bString);
     }
-    
+
     throw new Tars.DecodeMismatch("read int64 type mismatch, tag:" + tag + ", get type:" + head.type);
 }
 
@@ -1018,7 +1043,7 @@ Tars.InputStream.prototype.readFloat = function (tag, require, DEFAULT_VALUE) {
         case Tars.DataHelp.EN_ZERO   : return 0;
         case Tars.DataHelp.EN_FLOAT  : return this._binBuffer.readFloat();
     }
-    
+
     throw new Tars.DecodeMismatch("read float type mismatch, tag:" + tag + ", get type:" + head.type);
 }
 
@@ -1097,6 +1122,7 @@ Tars.InputStream.prototype.readBytes  = function(tag, require, TYPE_T, bRaw) {
     throw new Tars.DecodeMismatch("type mismatch, tag:" + tag + ",type:" + head.type);
 }
 
+var readListDeprecateWarnning = util.deprecate(function(){},"bRaw in readList is deprecated, use List(TarsStream.String, bRaw) instead");
 Tars.InputStream.prototype.readList = function(tag, require, TYPE_T, bRaw) {
     if (this._skipToTag(tag, require) == false) { return TYPE_T; }
 
@@ -1109,10 +1135,17 @@ Tars.InputStream.prototype.readList = function(tag, require, TYPE_T, bRaw) {
     if (size < 0) {
         throw new Tars.DecodeInvalidValue("invalid size, tag: " + tag + ", type: " + head.type + ", size: " + size);
     }
+    //3.0.21版本之前通过readList(xxx, true)来表示字符串转buffer，long转string表示
+    //3.0.21版本之后通过构造 List<T, bValue>来表示是否转换，这里以后要废弃掉
+    if(bRaw === true){
+        readListDeprecateWarnning();
+    }
+
+    var bValue = TYPE_T._bValue || bRaw;
 
     var TEMP = new Tars.List(TYPE_T._proto);
     for (var i = 0; i < size; ++i) {
-        TEMP.value.push(TEMP._proto._read(this, 0, TEMP._proto, bRaw));
+        TEMP.value.push(TEMP._proto._read(this, 0, TEMP._proto, bValue));
     }
     return TEMP;
 }
@@ -1130,10 +1163,15 @@ Tars.InputStream.prototype.readMap = function(tag, require, TYPE_T) {
         throw new Tars.DecodeMismatch("invalid map, tag: " + tag + ", size: " + size);
     }
 
-    var TEMP = new Tars.Map(TYPE_T._kproto, TYPE_T._vproto);
+    var bKey = TYPE_T._bKey, bValue = TYPE_T._bValue;
+    if(TYPE_T._kproto == Tars.String){
+        bKey = false;
+    }
+    var TEMP = new Tars.Map(TYPE_T._kproto, TYPE_T._vproto, bKey, bValue);
+
     for (var i = 0; i < size; i++) {
-        var key = TEMP._kproto._read(this, 0, TEMP._kproto);
-        var val = TEMP._vproto._read(this, 1, TEMP._vproto);
+        var key = TEMP._kproto._read(this, 0, TEMP._kproto, bKey);
+        var val = TEMP._vproto._read(this, 1, TEMP._vproto, bValue);
         TEMP.insert(key, val);
     }
 
@@ -1141,14 +1179,14 @@ Tars.InputStream.prototype.readMap = function(tag, require, TYPE_T) {
 }
 
 /**
- * Tup包裹类
+ * TUP包裹类
  */
 Tars.UniAttribute = function () {
     this._data = new Tars.Map(Tars.String, Tars.BinBuffer);
     this._mmap = new Tars.Map(Tars.String, Tars.Map(Tars.String, Tars.BinBuffer));
     this._buff = new Tars.OutputStream();
     this._temp = new Tars.InputStream(new Tars.BinBuffer());
-    this._iver = Tars.UniAttribute.Tup_SIMPLE;
+    this._iver = Tars.UniAttribute.TUP_SIMPLE;
 
     this.__defineGetter__("tupVersion", function() { return this._iver; });
     this.__defineSetter__("tupVersion", function(value) { this._iver = value; });
@@ -1157,7 +1195,7 @@ Tars.UniAttribute = function () {
 Tars.UniAttribute.TUP_COMPLEX = 2;
 Tars.UniAttribute.TUP_SIMPLE  = 3;
 
-Tars.UniAttribute.prototype._getkey = function(name, DEFAULT_VALUE, TYPE_T, FUNC) {
+Tars.UniAttribute.prototype._getkey = function(name, DEFAULT_VALUE, TYPE_T, FUNC, bValue) {
     if (this._iver == Tars.UniAttribute.TUP_SIMPLE) {
         var binBuffer = this._data.get(name);
         if (binBuffer == undefined && DEFAULT_VALUE == undefined) {
@@ -1182,12 +1220,12 @@ Tars.UniAttribute.prototype._getkey = function(name, DEFAULT_VALUE, TYPE_T, FUNC
     }
 
     this._temp.setBinBuffer(binBuffer);
-    return FUNC.call(this._temp, 0, true, TYPE_T)
+    return FUNC.call(this._temp, 0, true, TYPE_T, bValue)
 };
 
-Tars.UniAttribute.prototype._setkey = function(name, value, TYPE_T, FUNC) {
+Tars.UniAttribute.prototype._setkey = function(name, value, TYPE_T, FUNC, bValue) {
     this._buff._binBuffer.reset();
-    FUNC.call(this._buff, 0, value);
+    FUNC.call(this._buff, 0, value, bValue);
 
     if (this._iver == Tars.UniAttribute.TUP_SIMPLE) {
         this._data.set(name, new Tars.BinBuffer(this._buff.getBinBuffer().toNodeBuffer()));
@@ -1222,11 +1260,11 @@ Tars.UniAttribute.prototype.writeInt16   = function(name, value) { this._setkey(
 Tars.UniAttribute.prototype.writeUInt16  = function(name, value) { this._setkey(name, value, Tars.UInt16, this._buff.writeUInt16);   };
 Tars.UniAttribute.prototype.writeInt32   = function(name, value) { this._setkey(name, value, Tars.Int32, this._buff.writeInt32);     };
 Tars.UniAttribute.prototype.writeUInt32  = function(name, value) { this._setkey(name, value, Tars.UInt32, this._buff.writeUInt32);   };
-Tars.UniAttribute.prototype.writeInt64   = function(name, value) { this._setkey(name, value, Tars.Int64, this._buff.writeInt64);     };
+Tars.UniAttribute.prototype.writeInt64   = function(name, value, bValue) { this._setkey(name, value, Tars.Int64, this._buff.writeInt64, bValue);     };
 Tars.UniAttribute.prototype.writeFloat   = function(name, value) { this._setkey(name, value, Tars.Float, this._buff.writeFloat);     };
 Tars.UniAttribute.prototype.writeDouble  = function(name, value) { this._setkey(name, value, Tars.Double, this._buff.writeDouble);   };
 Tars.UniAttribute.prototype.writeBytes   = function(name, value) { this._setkey(name, value, Tars.BinBuffer, this._buff.writeBytes); };
-Tars.UniAttribute.prototype.writeString  = function(name, value) { this._setkey(name, value, Tars.String, this._buff.writeString);   };
+Tars.UniAttribute.prototype.writeString  = function(name, value, bValue) { this._setkey(name, value, Tars.String, this._buff.writeString, bValue);   };
 Tars.UniAttribute.prototype.writeStruct  = function(name, value) { this._setkey(name, value, value, this._buff.writeStruct);        };
 Tars.UniAttribute.prototype.writeList    = function(name, value) { this._setkey(name, value, value, this._buff.writeList);          };
 Tars.UniAttribute.prototype.writeMap     = function(name, value) { this._setkey(name, value, value, this._buff.writeMap);           };
@@ -1238,11 +1276,11 @@ Tars.UniAttribute.prototype.readInt16    = function(name, DEFAULT_VALUE) { retur
 Tars.UniAttribute.prototype.readUInt16   = function(name, DEFAULT_VALUE) { return this._getkey(name, DEFAULT_VALUE, Tars.UInt16,     this._temp.readUInt16);      };
 Tars.UniAttribute.prototype.readInt32    = function(name, DEFAULT_VALUE) { return this._getkey(name, DEFAULT_VALUE, Tars.Int32,      this._temp.readInt32);       };
 Tars.UniAttribute.prototype.readUInt32   = function(name, DEFAULT_VALUE) { return this._getkey(name, DEFAULT_VALUE, Tars.UInt32,     this._temp.readUInt32);      };
-Tars.UniAttribute.prototype.readInt64    = function(name, DEFAULT_VALUE) { return this._getkey(name, DEFAULT_VALUE, Tars.Int64,      this._temp.readInt64);       };
+Tars.UniAttribute.prototype.readInt64    = function(name, DEFAULT_VALUE, bValue) { return this._getkey(name, DEFAULT_VALUE, Tars.Int64,      this._temp.readInt64, bValue);       };
 Tars.UniAttribute.prototype.readFloat    = function(name, DEFAULT_VALUE) { return this._getkey(name, DEFAULT_VALUE, Tars.Float,      this._temp.readFloat);       };
 Tars.UniAttribute.prototype.readDouble   = function(name, DEFAULT_VALUE) { return this._getkey(name, DEFAULT_VALUE, Tars.Double,     this._temp.readDouble);      };
 Tars.UniAttribute.prototype.readBytes    = function(name, DEFAULT_VALUE) { return this._getkey(name, DEFAULT_VALUE, Tars.BinBuffer,  this._temp.readBytes);       };
-Tars.UniAttribute.prototype.readString   = function(name, DEFAULT_VALUE) { return this._getkey(name, DEFAULT_VALUE, Tars.String,     this._temp.readString);      };
+Tars.UniAttribute.prototype.readString   = function(name, DEFAULT_VALUE, bValue) { return this._getkey(name, DEFAULT_VALUE, Tars.String,     this._temp.readString, bValue);      };
 Tars.UniAttribute.prototype.readStruct   = function(name, TYPE_T, DEFAULT_VALUE) { return this._getkey(name, DEFAULT_VALUE, TYPE_T, this._temp.readStruct);      };
 Tars.UniAttribute.prototype.readList     = function(name, TYPE_T, DEFAULT_VALUE) { return this._getkey(name, DEFAULT_VALUE, TYPE_T, this._temp.readList);        };
 Tars.UniAttribute.prototype.readMap      = function(name, TYPE_T, DEFAULT_VALUE) { return this._getkey(name, DEFAULT_VALUE, TYPE_T, this._temp.readMap);         };
@@ -1274,7 +1312,7 @@ Tars.Tup.TUP_COMPLEX = Tars.UniAttribute.TUP_COMPLEX; //复杂TUP协议
 Tars.Tup.TUP_SIMPLE  = Tars.UniAttribute.TUP_SIMPLE;  //精简TUP协议
 
 Tars.Tup.prototype._writeTo = function() {
-    var os = new Tars.OutputStream(); 
+    var os = new Tars.OutputStream();
     os._binBuffer.writeInt32(0);
     os.writeInt16  (1,  this._attribute.tupVersion);
     os.writeInt8   (2,  this._cPacketType);
@@ -1345,11 +1383,11 @@ Tars.Tup.prototype.writeInt16   = function(name, value) { this._attribute.writeI
 Tars.Tup.prototype.writeUInt16  = function(name, value) { this._attribute.writeUInt16(name, value);  }
 Tars.Tup.prototype.writeInt32   = function(name, value) { this._attribute.writeInt32(name, value);   }
 Tars.Tup.prototype.writeUInt32  = function(name, value) { this._attribute.writeUInt32(name, value);  }
-Tars.Tup.prototype.writeInt64   = function(name, value) { this._attribute.writeInt64(name, value);   }
+Tars.Tup.prototype.writeInt64   = function(name, value, bValue) { this._attribute.writeInt64(name, value, bValue);   }
 Tars.Tup.prototype.writeFloat   = function(name, value) { this._attribute.writeFloat(name, value);   }
 Tars.Tup.prototype.writeDouble  = function(name, value) { this._attribute.writeDouble(name, value);  }
 Tars.Tup.prototype.writeBytes   = function(name, value) { this._attribute.writeBytes(name, value);   }
-Tars.Tup.prototype.writeString  = function(name, value) { this._attribute.writeString(name, value);  }
+Tars.Tup.prototype.writeString  = function(name, value, bValue) { this._attribute.writeString(name, value, bValue);  }
 Tars.Tup.prototype.writeStruct  = function(name, value) { this._attribute.writeStruct(name, value);  }
 Tars.Tup.prototype.writeList    = function(name, value) { this._attribute.writeList(name, value);    }
 Tars.Tup.prototype.writeMap     = function(name, value) { this._attribute.writeMap(name, value);     }
@@ -1361,11 +1399,11 @@ Tars.Tup.prototype.readInt16    = function(name, DEFAULT_VALUE)         { return
 Tars.Tup.prototype.readUInt16   = function(name, DEFAULT_VALUE)         { return this._attribute.readUInt16(name, DEFAULT_VALUE);         }
 Tars.Tup.prototype.readInt32    = function(name, DEFAULT_VALUE)         { return this._attribute.readInt32(name, DEFAULT_VALUE);          }
 Tars.Tup.prototype.readUInt32   = function(name, DEFAULT_VALUE)         { return this._attribute.readUInt32(name, DEFAULT_VALUE);         }
-Tars.Tup.prototype.readInt64    = function(name, DEFAULT_VALUE)         { return this._attribute.readInt64(name, DEFAULT_VALUE);          }
+Tars.Tup.prototype.readInt64    = function(name, DEFAULT_VALUE, bValue)         { return this._attribute.readInt64(name, DEFAULT_VALUE, bValue);          }
 Tars.Tup.prototype.readFloat    = function(name, DEFAULT_VALUE)         { return this._attribute.readFloat(name, DEFAULT_VALUE);          }
 Tars.Tup.prototype.readDouble   = function(name, DEFAULT_VALUE)         { return this._attribute.readDouble(name, DEFAULT_VALUE);         }
 Tars.Tup.prototype.readBytes    = function(name, DEFAULT_VALUE)         { return this._attribute.readBytes(name, DEFAULT_VALUE);          }
-Tars.Tup.prototype.readString   = function(name, DEFAULT_VALUE)         { return this._attribute.readString(name, DEFAULT_VALUE);         }
+Tars.Tup.prototype.readString   = function(name, DEFAULT_VALUE, bValue)         { return this._attribute.readString(name, DEFAULT_VALUE, bValue);         }
 Tars.Tup.prototype.readStruct   = function(name, TYPE_T, DEFAULT_VALUE) { return this._attribute.readStruct(name, TYPE_T, DEFAULT_VALUE); }
 Tars.Tup.prototype.readList     = function(name, TYPE_T, DEFAULT_VALUE) { return this._attribute.readList(name, TYPE_T, DEFAULT_VALUE);   }
 Tars.Tup.prototype.readMap      = function(name, TYPE_T, DEFAULT_VALUE) { return this._attribute.readMap(name, TYPE_T, DEFAULT_VALUE);    }
