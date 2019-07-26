@@ -1,36 +1,36 @@
 // Type defined by feihua
 
-export class JceException extends Error {
+export class TarsException extends Error {
   code: number
   constructor (code: number, message: string)
 }
 
-export class JceEncodeException extends JceException {
+export class TarsEncodeException extends TarsException {
   code: -2
   constructor (message: string)
 }
 
-export class JceDecodeException extends JceException {
+export class TarsDecodeException extends TarsException {
   code: -1
   constructor (message: string)
 }
 
-export class JceDecodeMismatch extends JceException {
+export class TarsDecodeMismatch extends TarsException {
   code: -1
   constructor (message: string)
 }
 
-export class JceDecodeRequireNotExist extends JceException {
+export class TarsDecodeRequireNotExist extends TarsException {
   code: -1
   constructor (message: string)
 }
 
-export class JceDecodeInvalidValue extends JceException {
+export class TarsDecodeInvalidValue extends TarsException {
   code: -1
   constructor (message: string)
 }
 
-export class WupNotFoundKey extends JceException {
+export class TupNotFoundKey extends TarsException {
   code: -1
   constructor (message: string)
 }
@@ -207,7 +207,7 @@ export class BinBuffer implements TarsClass<Buffer> {
   toObject (): Buffer
 }
 
-export class JceOutputStream {
+export class TarsOutputStream {
   setHeaderLength (value: number): void
   writeBoolean (tag: number, value: boolean): void
   writeInt8 (tag: number, value: number): void
@@ -229,7 +229,7 @@ export class JceOutputStream {
   getBinBuffer (): BinBuffer
 }
 
-export class JceInputStream {
+export class TarsInputStream {
   constructor (binBuffer: BinBuffer)
   setBinBuffer (binBuffer: BinBuffer): void
   readBoolean (tag: number, require: boolean, DEFAULT_VALUE?: boolean): boolean
@@ -252,10 +252,10 @@ export class JceInputStream {
 }
 
 export class UniAttribute {
-  static WUP_COMPLEX: 2
-  static WUP_SIMPLE: 3
+  static TUP_COMPLEX: 2
+  static TUP_SIMPLE: 3
 
-  wupVersion: number
+  tupVersion: number
 
   decode (binBuffer: BinBuffer): void
   encode (): BinBuffer
@@ -297,14 +297,14 @@ export class UniAttribute {
   readMap<T> (name: string, TYPE_T: ConstructorOf<T>, DEFAULT_VALUE?: T): T
 }
 
-export class Wup {
-  static WUP_COMPLEX: 2
-  static WUP_SIMPLE: 3
+export class Tup {
+  static TUP_COMPLEX: 2
+  static TUP_SIMPLE: 3
 
   servantName: string
   funcName: string
   requestId: number
-  wupVersion: number
+  tupVersion: number
 
   decode (binBuffer: BinBuffer): void
   encode (): BinBuffer
