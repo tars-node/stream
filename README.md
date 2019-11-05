@@ -64,7 +64,7 @@ module TRom
 var Tars = require("@tars/stream");
 
 //第二步，客户端按照服务端要求，对输入参数进行编码
-var ost = new Tars.OutputStream();
+var ost = new Tars.TarsOutputStream();
 ost.writeUInt32(0, 155069599);		//写入“用户号码”；在服务端“0”代表“用户号码”。
 ost.writeString(1, "KevinTian");	//写入“用户昵称”；在服务端“1”代表“用户昵称”。
 ost.writeUInt32(2, 1002121);		//写入“商品编号”；在服务端“2”代表“商品编号”。
@@ -77,7 +77,7 @@ send ( ost.getBinBuffer().toNodeBuffer() ) to server
 recv ( var requestBuffer = new Buffer() ) from client
 
 //第五步，将该请求进行解码反序列化
-var ist = new Tars.InputStream(new Tars.BinBuffer(requestBuffer));
+var ist = new Tars.TarsInputStream(new Tars.BinBuffer(requestBuffer));
 
 var uin  = ist.readUInt32(0, true);	//根据编号“0”读取“用户号码”。
 var name = ist.readString(1, true);	//根据编号“1”读取“用户昵称”。
@@ -167,8 +167,8 @@ console.log("num :", num);
 //必须引入stream模块
 var Tars = require("@tars/stream");
 
-//使用Tars.OutputStream对数据进行序列化
-var os = new Tars.OutputStream();
+//使用Tars.TarsOutputStream对数据进行序列化
+var os = new Tars.TarsOutputStream();
 
 os.writeBoolean(0, false);
 os.writeInt8(1, 10);
@@ -180,8 +180,8 @@ os.writeUInt16(6, 65535);
 os.writeUInt32(7, 0xFFFFFFEE);
 os.writeString(8, "我的测试程序");
 
-//使用Tars.InputStream对数据进行反序列化
-var is = new Tars.InputStream(os.getBinBuffer());
+//使用Tars.TarsInputStream对数据进行反序列化
+var is = new Tars.TarsInputStream(os.getBinBuffer());
 
 var tp0 = is.readBoolean(0, true, false);
 console.log("BOOLEAN:", tp0);
@@ -348,7 +348,7 @@ Ext.ExtInfo.prototype._genKey = function () {
     return this._proto_struct_name_;
 }
 Ext.ExtInfo.prototype.toBinBuffer = function () {
-    var os = new TarsStream.OutputStream();
+    var os = new TarsStream.TarsOutputStream();
     this._writeTo(os);
     return os.getBinBuffer();
 }
@@ -434,7 +434,7 @@ var usr  = new TRom.Param();
 usr.sUserName = "KevinTian";
 usr.iId       = 10000;
 
-var os = new Tars.OutputStream();
+var os = new Tars.TarsOutputStream();
 os.writeStruct(1, usr);
 
 //打包并得到发送的二进制数据流
@@ -447,7 +447,7 @@ var toSendBuffer = os.getBinBuffer().toNodeBuffer();
 var Tars  = require("@tars/stream");
 var TRom = require("./Protocol.js").TRom;
 
-var is   = new Tars.InputStream(new Tars.BinBuffer(toSendBuffer));
+var is   = new Tars.TarsInputStream(new Tars.BinBuffer(toSendBuffer));
 var usr  = is.readStruct(1, true, TRom.Param);
 
 console.log("TRom.Param.sUserName:", usr.sUserName);
@@ -728,13 +728,13 @@ msg.put(StatMicMsgHead1, StatMicMsgBody1);
 msg.put(StatMicMsgHead2, StatMicMsgBody2);
 
 //tars编码
-var os = new Tars.OutputStream();
+var os = new Tars.TarsOutputStream();
 os.writeMap(1, msg);
 
 //tars解码
 var data = os.getBinBuffer().toNodeBuffer();
 
-var is = new Tars.InputStream(new Tars.BinBuffer(data));
+var is = new Tars.TarsInputStream(new Tars.BinBuffer(data));
 var ta = is.readMap(1, true, Tars.Map(Test.StatMicMsgHead, Test.StatMicMsgBody));
 
 //遍历Map结果集
@@ -1179,11 +1179,11 @@ if (tb == undefined) {
 
 >输入参数：无
 
->使用示例：var os = new [stream].OutputStream()
+>使用示例：var os = new [stream].TarsOutputStream()
 
 **getBinBuffer**
 
->函数定义：var buffer = [stream].OutputStream.getBinBuffer()
+>函数定义：var buffer = [stream].TarsOutputStream.getBinBuffer()
 
 >函数作用：调用该函数获得打包后的二进制数据流
 
@@ -1193,7 +1193,7 @@ if (tb == undefined) {
 
 **writeBoolean**
 
->函数定义：[stream].OutputStream.writeBoolean(tag, value)
+>函数定义：[stream].TarsOutputStream.writeBoolean(tag, value)
 
 >函数作用：向数据流中写一个Boolean类型的变量
 
@@ -1208,7 +1208,7 @@ if (tb == undefined) {
 
 **writeInt8**
 
->函数定义：[stream].OutputStream.writeInt8(tag, value)
+>函数定义：[stream].TarsOutputStream.writeInt8(tag, value)
 
 >函数作用：向数据流中写一个int8类型的变量
 
@@ -1223,7 +1223,7 @@ if (tb == undefined) {
 
 **writeInt16**
 
->函数定义：[stream].OutputStream.writeInt16(tag, value)
+>函数定义：[stream].TarsOutputStream.writeInt16(tag, value)
 
 >函数作用：向数据流中写一个Int16类型的变量
 
@@ -1238,7 +1238,7 @@ if (tb == undefined) {
 
 **writeInt32**
 
->函数定义：[stream].OutputStream.writeInt32(tag, value)
+>函数定义：[stream].TarsOutputStream.writeInt32(tag, value)
 
 >函数作用：向数据流中写一个Int32类型的变量
 
@@ -1253,7 +1253,7 @@ if (tb == undefined) {
 
 **writeInt64**
 
->函数定义：[stream].OutputStream.writeInt64(tag, value)
+>函数定义：[stream].TarsOutputStream.writeInt64(tag, value)
 
 >函数作用：向数据流中写一个Int64类型的变量
 
@@ -1268,7 +1268,7 @@ if (tb == undefined) {
 
 **writeUInt8**
 
->函数定义：[stream].OutputStream.writeUInt8(tag, value)
+>函数定义：[stream].TarsOutputStream.writeUInt8(tag, value)
 
 >函数作用：向数据流中写一个UInt8类型的变量
 
@@ -1283,7 +1283,7 @@ if (tb == undefined) {
 
 **writeUInt16**
 
->函数定义：[stream].OutputStream.writeUInt16(tag, value)
+>函数定义：[stream].TarsOutputStream.writeUInt16(tag, value)
 
 >函数作用：向数据流中写一个UInt16类型的变量
 
@@ -1298,7 +1298,7 @@ if (tb == undefined) {
 
 **writeUInt32**
 
->函数定义：[stream].OutputStream.writeUInt32(tag, value)
+>函数定义：[stream].TarsOutputStream.writeUInt32(tag, value)
 
 >函数作用：向数据流中写一个UInt32类型的变量
 
@@ -1313,7 +1313,7 @@ if (tb == undefined) {
 
 **writeFloat**
 
->函数定义：[stream].OutputStream.writeFloat(tag, value)
+>函数定义：[stream].TarsOutputStream.writeFloat(tag, value)
 
 >函数作用：向数据流中写一个float(32位)类型的变量
 
@@ -1328,7 +1328,7 @@ if (tb == undefined) {
 
 **writeDouble**
 
->函数定义：[stream].OutputStream.writeDouble(tag, value)
+>函数定义：[stream].TarsOutputStream.writeDouble(tag, value)
 
 >函数作用：向数据流中写一个double(64位)类型的变量
 
@@ -1343,7 +1343,7 @@ if (tb == undefined) {
 
 **writeString**
 
->函数定义：[stream].OutputStream.writeString(tag, value)
+>函数定义：[stream].TarsOutputStream.writeString(tag, value)
 
 >函数作用：向数据流中写一个String类型的变量
 
@@ -1373,7 +1373,7 @@ if (tb == undefined) {
 
 **writeBytes**
 
->函数定义：[stream].OutputStream.writeBytes(tag, value)
+>函数定义：[stream].TarsOutputStream.writeBytes(tag, value)
 
 >函数作用：向数据流中写一个类型为 `char *` 或者 `vector<char>` 的变量
 
@@ -1388,7 +1388,7 @@ if (tb == undefined) {
 
 **writeList**
 
->函数定义：[stream].OutputStream.writeList(tag, value)
+>函数定义：[stream].TarsOutputStream.writeList(tag, value)
 
 >函数作用：向数据流中写一个类型为 `vector<T>`（T不可为byte）的变量
 
@@ -1403,7 +1403,7 @@ if (tb == undefined) {
 
 **writeMap**
 
->函数定义：[stream].OutputStream.writeMap(tag, value)
+>函数定义：[stream].TarsOutputStream.writeMap(tag, value)
 
 >函数作用：向数据流中写一个类型为 `map<T, V>` 类型的字段。
 
@@ -1420,7 +1420,7 @@ if (tb == undefined) {
 
 **构造函数**
 
->函数定义：[stream].InputStream(binBuffer)
+>函数定义：[stream].TarsInputStream(binBuffer)
 
 >函数作用：声明一个输入流对象
 
@@ -1428,11 +1428,11 @@ if (tb == undefined) {
 
 >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;binBuffer 欲解码的二进制数据流，该值类型必须为[stream].BinBuffer，而不能是NodeJs中实现的Buffer类。
 
->使用示例：var is = new [stream].InputStream(new [stream].BinBuffer(Node.Buffer))
+>使用示例：var is = new [stream].TarsInputStream(new [stream].BinBuffer(Node.Buffer))
 
 **readBoolean**
 
->函数定义：var value = [stream].InputStream.readBoolean(tag, require, default)
+>函数定义：var value = [stream].TarsInputStream.readBoolean(tag, require, default)
 
 >函数作用：从数据流读取一个Boolean类型的数值
 
@@ -1454,7 +1454,7 @@ if (tb == undefined) {
 
 **readInt8**
 
->函数定义：[stream].InputStream.readInt8(tag, require, default)
+>函数定义：[stream].TarsInputStream.readInt8(tag, require, default)
 
 >函数作用：从数据流读取一个Int8类型的数值
 
@@ -1476,7 +1476,7 @@ if (tb == undefined) {
 
 **readInt16**
 
->函数定义：[stream].InputStream.readInt16(tag, require, default)
+>函数定义：[stream].TarsInputStream.readInt16(tag, require, default)
 
 >函数作用：从数据流读取一个Int16类型的数值
 
@@ -1498,7 +1498,7 @@ if (tb == undefined) {
 
 **readInt32**
 
->函数定义：[stream].InputStream.readInt32(tag, require, default)
+>函数定义：[stream].TarsInputStream.readInt32(tag, require, default)
 
 >函数作用：从数据流读取一个Int32类型的数值
 
@@ -1520,7 +1520,7 @@ if (tb == undefined) {
 
 **readInt64**
 
->函数定义：[stream].InputStream.readInt64(tag, require, default)
+>函数定义：[stream].TarsInputStream.readInt64(tag, require, default)
 
 >函数作用：从数据流读取一个Int64类型的数值
 
@@ -1542,7 +1542,7 @@ if (tb == undefined) {
 
 **readUInt8**
 
->函数定义：[stream].InputStream.readUInt8(tag, require, default)
+>函数定义：[stream].TarsInputStream.readUInt8(tag, require, default)
 
 >函数作用：从数据流读取一个UInt8类型的数值
 
@@ -1564,7 +1564,7 @@ if (tb == undefined) {
 
 **readUInt16**
 
->函数定义：[stream].InputStream.readUInt16(tag, require, default)
+>函数定义：[stream].TarsInputStream.readUInt16(tag, require, default)
 
 >函数作用：从数据流读取一个UInt16类型的数值
 
@@ -1586,7 +1586,7 @@ if (tb == undefined) {
 
 **readUInt32**
 
->函数定义：[stream].InputStream.readUInt32(tag, require, default)
+>函数定义：[stream].TarsInputStream.readUInt32(tag, require, default)
 
 >函数作用：从数据流读取一个UInt32类型的数值
 
@@ -1608,7 +1608,7 @@ if (tb == undefined) {
 
 **readFloat**
 
->函数定义：[stream].InputStream.readFloat(tag, require, default)
+>函数定义：[stream].TarsInputStream.readFloat(tag, require, default)
 
 >函数作用：从数据流读取一个Float（32位，单精度浮点数）类型的数值
 
@@ -1630,7 +1630,7 @@ if (tb == undefined) {
 
 **readDouble**
 
->函数定义：[stream].InputStream.readFloat(tag, require, default)
+>函数定义：[stream].TarsInputStream.readFloat(tag, require, default)
 
 >函数作用：从数据流读取一个Double（64位，双精度浮点数）类型的数值
 
@@ -1652,7 +1652,7 @@ if (tb == undefined) {
 
 **readString**
 
->函数定义：[stream].InputStream.readString(tag, require, default)
+>函数定义：[stream].TarsInputStream.readString(tag, require, default)
 
 >函数作用：从数据流读取一个String（UTF8编码）类型的数值
 
@@ -1674,7 +1674,7 @@ if (tb == undefined) {
 
 **readStruct**
 
->函数定义：[stream].InputStream.readStruct(tag, require, TYPE_T)
+>函数定义：[stream].TarsInputStream.readStruct(tag, require, TYPE_T)
 
 >函数作用：从数据流读取一个自定义结构体类型的数值
 
@@ -1696,7 +1696,7 @@ if (tb == undefined) {
 
 **readBytes**
 
->函数定义：[stream].InputStream.readBytes(tag, require, TYPE_T)
+>函数定义：[stream].TarsInputStream.readBytes(tag, require, TYPE_T)
 
 >函数作用：从数据流读取一个 `[stream].BinBuffer` 类型的数值
 
@@ -1718,7 +1718,7 @@ if (tb == undefined) {
 
 **readList**
 
->函数定义：[stream].InputStream.readList(tag, require, TYPE_T)
+>函数定义：[stream].TarsInputStream.readList(tag, require, TYPE_T)
 
 >函数作用：从数据流读取一个 `[stream].List<T>` 类型的数值
 
@@ -1740,7 +1740,7 @@ if (tb == undefined) {
 
 **readMap**
 
->函数定义：[stream].InputStream.readMap(tag, require, TYPE_T)
+>函数定义：[stream].TarsInputStream.readMap(tag, require, TYPE_T)
 
 >函数作用：从数据流读取一个 `[stream].Map<T, V>` 类型的数值
 

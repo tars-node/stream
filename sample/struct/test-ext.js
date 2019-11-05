@@ -9,10 +9,10 @@ temp.data.insert("abcd", abcd);
 
 temp.cons.insert("mapa", temp.data);
 
-var ost = new TarsStream.OutputStream();
+var ost = new TarsStream.TarsOutputStream();
 ost.writeStruct(1, temp);
 
-var ist = new TarsStream.InputStream(ost.getBinBuffer());
+var ist = new TarsStream.TarsInputStream(ost.getBinBuffer());
 var tst = ist.readStruct(1, true, Ext.ExtInfo);
 
 console.log("LEN:", tst.data.get("abcd").readInt32());

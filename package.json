@@ -1,26 +1,24 @@
 {
 	"name"          : "@tars/stream",
-  	"version"       : "2.0.1",
+  	"version"       : "2.0.2",
     "main"          : "tars.js",
     "types": "tars-stream.d.ts",
     "description"   : "A library for TARS Encode/Decode(TARS TUP)",
   	"homepage"      : "",
   	"author"        : {
     	"name" : "czzou",
-    	"email": "czzou@tencent.com",
-    	"url"  : ""
+    	"email": "czzou@tencent.com"
   	},
   	"keywords"      : ["tars",  "tup" ],
   	"contributors"  : [
         {
             "name": "czzou",
-            "email": "czzou@tencent.com",
-            "url": ""
+            "email": "czzou@tencent.com"
         }
   	],
     "repository"    : {
         "type": "git",
-        "url" : ""
+        "url" : "https://github.com/tars-node/stream.git"
     },
     "dependencies": {
       "big.js": "^3.1.3"

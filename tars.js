@@ -688,11 +688,11 @@ Tars.BinBuffer.prototype.print = function() {
 /**
  * tars输出编解码包裹类
  */
-Tars.OutputStream = function () {
+Tars.TarsOutputStream = function () {
     this._binBuffer = new Tars.BinBuffer;
 }
 
-Tars.OutputStream.prototype._writeTo = function (tag, type) {
+Tars.TarsOutputStream.prototype._writeTo = function (tag, type) {
     if (tag < 15) {
         this._binBuffer.writeUInt8((tag << 4 & 0xF0) | type);
     } else {
@@ -700,7 +700,7 @@ Tars.OutputStream.prototype._writeTo = function (tag, type) {
     }
 }
 
-Tars.OutputStream.prototype.setHeaderLength = function (value) {
+Tars.TarsOutputStream.prototype.setHeaderLength = function (value) {
     var position = this._binBuffer._position === 0?4:this._binBuffer._position;
     var length   = this._binBuffer._position === 0?4:this._binBuffer._length;
 
@@ -710,11 +710,11 @@ Tars.OutputStream.prototype.setHeaderLength = function (value) {
     this._binBuffer._length   = length;
 }
 
-Tars.OutputStream.prototype.writeBoolean = function (tag, value) {
+Tars.TarsOutputStream.prototype.writeBoolean = function (tag, value) {
     this.writeInt8(tag, value == true ? 1 : 0);
 }
 
-Tars.OutputStream.prototype.writeInt8 = function (tag, value) {
+Tars.TarsOutputStream.prototype.writeInt8 = function (tag, value) {
     value = +value;
     if (value == 0) {
         this._writeTo(tag, Tars.DataHelp.EN_ZERO);
@@ -724,7 +724,7 @@ Tars.OutputStream.prototype.writeInt8 = function (tag, value) {
     }
 }
 
-Tars.OutputStream.prototype.writeInt16 = function (tag, value) {
+Tars.TarsOutputStream.prototype.writeInt16 = function (tag, value) {
     value = +value;
     if (value >= -128 && value <= 127) {
         this.writeInt8(tag, value);
@@ -734,7 +734,7 @@ Tars.OutputStream.prototype.writeInt16 = function (tag, value) {
     }
 }
 
-Tars.OutputStream.prototype.writeInt32 = function (tag, value) {
+Tars.TarsOutputStream.prototype.writeInt32 = function (tag, value) {
     value = +value;
     if (value >= -32768 && value <= 32767) {
         this.writeInt16(tag, value);
@@ -744,7 +744,7 @@ Tars.OutputStream.prototype.writeInt32 = function (tag, value) {
     }
 }
 
-Tars.OutputStream.prototype.writeInt64 = function (tag, value, bString) {
+Tars.TarsOutputStream.prototype.writeInt64 = function (tag, value, bString) {
     var val = +value;
     if (val >= -2147483648 && val <= 2147483647) {
         this.writeInt32(tag, val);
@@ -754,19 +754,19 @@ Tars.OutputStream.prototype.writeInt64 = function (tag, value, bString) {
     this._binBuffer.writeInt64(value, bString);
 }
 
-Tars.OutputStream.prototype.writeUInt8 = function (tag, value) {
+Tars.TarsOutputStream.prototype.writeUInt8 = function (tag, value) {
     this.writeInt16(tag, value);
 }
 
-Tars.OutputStream.prototype.writeUInt16 = function (tag, value) {
+Tars.TarsOutputStream.prototype.writeUInt16 = function (tag, value) {
     this.writeInt32(tag, value);
 }
 
-Tars.OutputStream.prototype.writeUInt32 = function (tag, value) {
+Tars.TarsOutputStream.prototype.writeUInt32 = function (tag, value) {
     this.writeInt64(tag, value);
 }
 
-Tars.OutputStream.prototype.writeFloat = function (tag, value) {
+Tars.TarsOutputStream.prototype.writeFloat = function (tag, value) {
     if (value == 0) {
         this._writeTo(tag, Tars.DataHelp.EN_ZERO);
     } else {
@@ -775,7 +775,7 @@ Tars.OutputStream.prototype.writeFloat = function (tag, value) {
     }
 }
 
-Tars.OutputStream.prototype.writeDouble = function (tag, value) {
+Tars.TarsOutputStream.prototype.writeDouble = function (tag, value) {
     if (value == 0) {
         this._writeTo(tag, Tars.DataHelp.EN_ZERO);
     } else {
@@ -784,7 +784,7 @@ Tars.OutputStream.prototype.writeDouble = function (tag, value) {
     }
 }
 
-Tars.OutputStream.prototype.writeStruct = function (tag, value) {
+Tars.TarsOutputStream.prototype.writeStruct = function (tag, value) {
     if (value._writeTo == undefined) {
         throw Error("not defined writeTo Function");
     }
@@ -794,7 +794,7 @@ Tars.OutputStream.prototype.writeStruct = function (tag, value) {
     this._writeTo(0, Tars.DataHelp.EN_STRUCTEND);
 }
 
-Tars.OutputStream.prototype.writeString = function (tag, value, bRaw) {
+Tars.TarsOutputStream.prototype.writeString = function (tag, value, bRaw) {
     if (bRaw != undefined && bRaw == true) {
         var byteLength = value.length;
         if (byteLength > 255) {
@@ -821,14 +821,14 @@ Tars.OutputStream.prototype.writeString = function (tag, value, bRaw) {
     this._binBuffer.writeString(value, byteLength);
 }
 
-Tars.OutputStream.prototype.writeBytes = function (tag, value) {
+Tars.TarsOutputStream.prototype.writeBytes = function (tag, value) {
     this._writeTo(tag, Tars.DataHelp.EN_SIMPLELIST);
     this._writeTo(0, Tars.DataHelp.EN_INT8);
     this.writeInt32(0, value.length);
     this._binBuffer.writeBinBuffer(value);
 }
 var writeListDeprecateWarnning = util.deprecate(function(){},"bRaw in writeList is deprecated, use List(TarsStream.String, bRaw) instead")
-Tars.OutputStream.prototype.writeList = function (tag, value, bRaw) {
+Tars.TarsOutputStream.prototype.writeList = function (tag, value, bRaw) {
     this._writeTo(tag, Tars.DataHelp.EN_LIST);
     this.writeInt32(0, value.length);
     //3.0.21版本之前通过writeList(xxx, true)来表示字符串转buffer，long转string表示
@@ -843,7 +843,7 @@ Tars.OutputStream.prototype.writeList = function (tag, value, bRaw) {
     }
 }
 
-Tars.OutputStream.prototype.writeMap  = function (tag, value) {
+Tars.TarsOutputStream.prototype.writeMap  = function (tag, value) {
     this._writeTo(tag, Tars.DataHelp.EN_MAP);
     this.writeInt32(0, value.size());
 
@@ -858,24 +858,24 @@ Tars.OutputStream.prototype.writeMap  = function (tag, value) {
     }, bKey);
 }
 
-Tars.OutputStream.prototype.getBinBuffer = function() {
+Tars.TarsOutputStream.prototype.getBinBuffer = function() {
     return this._binBuffer;
 }
 
 /**
  * TARS-TARS输入编解码包裹类
  */
-Tars.InputStream = function (binBuffer) {
+Tars.TarsInputStream = function (binBuffer) {
     this._binBuffer = binBuffer;
     this._binBuffer._position = 0;
 }
 
-Tars.InputStream.prototype.setBinBuffer = function (binBuffer) {
+Tars.TarsInputStream.prototype.setBinBuffer = function (binBuffer) {
     this._binBuffer = binBuffer;
     this._binBuffer._position = 0;
 }
 
-Tars.InputStream.prototype._readFrom = function () {
+Tars.TarsInputStream.prototype._readFrom = function () {
     var temp = this._binBuffer.readUInt8();
     var tag  = (temp & 0xF0) >> 4;
     var type = (temp & 0x0F);
@@ -884,7 +884,7 @@ Tars.InputStream.prototype._readFrom = function () {
     return {tag:tag, type:type};
 }
 
-Tars.InputStream.prototype._peekFrom = function () {
+Tars.TarsInputStream.prototype._peekFrom = function () {
     var pos  = this._binBuffer._position;
     var head = this._readFrom();
     this._binBuffer.position = pos;
@@ -892,7 +892,7 @@ Tars.InputStream.prototype._peekFrom = function () {
     return {tag:head.tag, type:head.type, size:(head.tag >= 15) ? 2 : 1};
 }
 
-Tars.InputStream.prototype._skipField = function (type) {
+Tars.TarsInputStream.prototype._skipField = function (type) {
     switch (type) {
         case Tars.DataHelp.EN_INT8        : this._binBuffer._position += 1; break;
         case Tars.DataHelp.EN_INT16       : this._binBuffer._position += 2; break;
@@ -945,7 +945,7 @@ Tars.InputStream.prototype._skipField = function (type) {
     }
 }
 
-Tars.InputStream.prototype._skipToStructEnd = function () {
+Tars.TarsInputStream.prototype._skipToStructEnd = function () {
     for ( ; ; ) {
         var head = this._readFrom();
         this._skipField(head.type);
@@ -955,7 +955,7 @@ Tars.InputStream.prototype._skipToStructEnd = function () {
         }
     }
 }
-Tars.InputStream.prototype._skipToTag = function (tag, require) {
+Tars.TarsInputStream.prototype._skipToTag = function (tag, require) {
     while (this._binBuffer._position < this._binBuffer._length) {
         var head = this._peekFrom();
         //记录tag的位置，struct随读随解码
@@ -977,11 +977,11 @@ Tars.InputStream.prototype._skipToTag = function (tag, require) {
     return false;
 }
 
-Tars.InputStream.prototype.readBoolean = function (tag, require, DEFAULT_VALUE) {
+Tars.TarsInputStream.prototype.readBoolean = function (tag, require, DEFAULT_VALUE) {
     return this.readInt8(tag, require, DEFAULT_VALUE) == 1 ? true : false;
 }
 
-Tars.InputStream.prototype.readInt8 = function (tag, require, DEFAULT_VALUE) {
+Tars.TarsInputStream.prototype.readInt8 = function (tag, require, DEFAULT_VALUE) {
     if (this._skipToTag(tag, require) == false) { return DEFAULT_VALUE; }
 
     var head = this._readFrom();
@@ -993,7 +993,7 @@ Tars.InputStream.prototype.readInt8 = function (tag, require, DEFAULT_VALUE) {
     throw new Tars.DecodeMismatch("read int8 type mismatch, tag:" + tag + ", get type:" + head.type);
 }
 
-Tars.InputStream.prototype.readInt16 = function (tag, require, DEFAULT_VALUE) {
+Tars.TarsInputStream.prototype.readInt16 = function (tag, require, DEFAULT_VALUE) {
     if (this._skipToTag(tag, require) == false) { return DEFAULT_VALUE; }
 
     var head = this._readFrom();
@@ -1006,7 +1006,7 @@ Tars.InputStream.prototype.readInt16 = function (tag, require, DEFAULT_VALUE) {
     throw new Tars.DecodeMismatch("read int8 type mismatch, tag:" + tag + ", get type:" + head.type);
 }
 
-Tars.InputStream.prototype.readInt32 = function (tag, requrire, DEFAULT_VALUE) {
+Tars.TarsInputStream.prototype.readInt32 = function (tag, requrire, DEFAULT_VALUE) {
     if (this._skipToTag(tag, requrire) == false) { return DEFAULT_VALUE; }
 
     var head = this._readFrom();
@@ -1020,7 +1020,7 @@ Tars.InputStream.prototype.readInt32 = function (tag, requrire, DEFAULT_VALUE) {
     throw new Tars.DecodeMismatch("read int8 type mismatch, tag:" + tag + ", get type:" + head.type);
 }
 
-Tars.InputStream.prototype.readInt64 = function (tag, require, DEFAULT_VALUE, bString) {
+Tars.TarsInputStream.prototype.readInt64 = function (tag, require, DEFAULT_VALUE, bString) {
     if (this._skipToTag(tag, require) == false) { return DEFAULT_VALUE; }
 
     var head = this._readFrom();
@@ -1035,7 +1035,7 @@ Tars.InputStream.prototype.readInt64 = function (tag, require, DEFAULT_VALUE, bS
     throw new Tars.DecodeMismatch("read int64 type mismatch, tag:" + tag + ", get type:" + head.type);
 }
 
-Tars.InputStream.prototype.readFloat = function (tag, require, DEFAULT_VALUE) {
+Tars.TarsInputStream.prototype.readFloat = function (tag, require, DEFAULT_VALUE) {
     if (this._skipToTag(tag, require) == false) { return DEFAULT_VALUE; }
 
     var head = this._readFrom();
@@ -1047,7 +1047,7 @@ Tars.InputStream.prototype.readFloat = function (tag, require, DEFAULT_VALUE) {
     throw new Tars.DecodeMismatch("read float type mismatch, tag:" + tag + ", get type:" + head.type);
 }
 
-Tars.InputStream.prototype.readDouble = function (tag, require, DEFAULT_VALUE) {
+Tars.TarsInputStream.prototype.readDouble = function (tag, require, DEFAULT_VALUE) {
     if (this._skipToTag(tag, require) == false) { return DEFAULT_VALUE; }
 
     var head = this._readFrom();
@@ -1059,19 +1059,19 @@ Tars.InputStream.prototype.readDouble = function (tag, require, DEFAULT_VALUE) {
     throw new Tars.DecodeMismatch("read double type mismatch, tag:" + tag + ", get type:" + head.type);
 }
 
-Tars.InputStream.prototype.readUInt8 = function (tag, require, DEFAULT_VALUE)  {
+Tars.TarsInputStream.prototype.readUInt8 = function (tag, require, DEFAULT_VALUE)  {
     return this.readInt16(tag, require, DEFAULT_VALUE);
 }
 
-Tars.InputStream.prototype.readUInt16 = function (tag, require, DEFAULT_VALUE) {
+Tars.TarsInputStream.prototype.readUInt16 = function (tag, require, DEFAULT_VALUE) {
     return this.readInt32(tag, require, DEFAULT_VALUE);
 }
 
-Tars.InputStream.prototype.readUInt32 = function (tag, require, DEFAULT_VALUE) {
+Tars.TarsInputStream.prototype.readUInt32 = function (tag, require, DEFAULT_VALUE) {
     return this.readInt64(tag, require, DEFAULT_VALUE);
 }
 
-Tars.InputStream.prototype.readString = function (tag, require, DEFAULT_VALUE, bRaw) {
+Tars.TarsInputStream.prototype.readString = function (tag, require, DEFAULT_VALUE, bRaw) {
     if (this._skipToTag(tag, require) == false) { return DEFAULT_VALUE; }
 
     var head = this._readFrom();
@@ -1086,7 +1086,7 @@ Tars.InputStream.prototype.readString = function (tag, require, DEFAULT_VALUE, b
     throw new Tars.DecodeMismatch("read 'string' type mismatch, tag: " + tag + ", get type: " + head.type + ".");
 }
 
-Tars.InputStream.prototype.readStruct = function (tag, require, TYPE_T) {
+Tars.TarsInputStream.prototype.readStruct = function (tag, require, TYPE_T) {
     if (this._skipToTag(tag, require) == false) { return  new TYPE_T(); }
 
     var head = this._readFrom();
@@ -1099,7 +1099,7 @@ Tars.InputStream.prototype.readStruct = function (tag, require, TYPE_T) {
     return temp;
 }
 
-Tars.InputStream.prototype.readBytes  = function(tag, require, TYPE_T, bRaw) {
+Tars.TarsInputStream.prototype.readBytes  = function(tag, require, TYPE_T, bRaw) {
     if (this._skipToTag(tag, require) == false) { return new TYPE_T(); }
 
     var head = this._readFrom();
@@ -1123,7 +1123,7 @@ Tars.InputStream.prototype.readBytes  = function(tag, require, TYPE_T, bRaw) {
 }
 
 var readListDeprecateWarnning = util.deprecate(function(){},"bRaw in readList is deprecated, use List(TarsStream.String, bRaw) instead");
-Tars.InputStream.prototype.readList = function(tag, require, TYPE_T, bRaw) {
+Tars.TarsInputStream.prototype.readList = function(tag, require, TYPE_T, bRaw) {
     if (this._skipToTag(tag, require) == false) { return TYPE_T; }
 
     var head = this._readFrom();
@@ -1150,7 +1150,7 @@ Tars.InputStream.prototype.readList = function(tag, require, TYPE_T, bRaw) {
     return TEMP;
 }
 
-Tars.InputStream.prototype.readMap = function(tag, require, TYPE_T) {
+Tars.TarsInputStream.prototype.readMap = function(tag, require, TYPE_T) {
     if (this._skipToTag(tag, require) == false) { return TYPE_T; }
 
     var head = this._readFrom();
@@ -1184,8 +1184,8 @@ Tars.InputStream.prototype.readMap = function(tag, require, TYPE_T) {
 Tars.UniAttribute = function () {
     this._data = new Tars.Map(Tars.String, Tars.BinBuffer);
     this._mmap = new Tars.Map(Tars.String, Tars.Map(Tars.String, Tars.BinBuffer));
-    this._buff = new Tars.OutputStream();
-    this._temp = new Tars.InputStream(new Tars.BinBuffer());
+    this._buff = new Tars.TarsOutputStream();
+    this._temp = new Tars.TarsInputStream(new Tars.BinBuffer());
     this._iver = Tars.UniAttribute.TUP_SIMPLE;
 
     this.__defineGetter__("tupVersion", function() { return this._iver; });
@@ -1237,7 +1237,7 @@ Tars.UniAttribute.prototype._setkey = function(name, value, TYPE_T, FUNC, bValue
 };
 
 Tars.UniAttribute.prototype.decode = function(binBuffer) {
-    var is = new Tars.InputStream(binBuffer);
+    var is = new Tars.TarsInputStream(binBuffer);
     if (this._iver == Tars.UniAttribute.TUP_SIMPLE) {
         this._data.clear();
         this._data = is.readMap(0, true, Tars.Map(Tars.String, Tars.BinBuffer));
@@ -1248,7 +1248,7 @@ Tars.UniAttribute.prototype.decode = function(binBuffer) {
 };
 
 Tars.UniAttribute.prototype.encode = function() {
-    var os = new Tars.OutputStream();
+    var os = new Tars.TarsOutputStream();
     os.writeMap(0, this._iver == Tars.UniAttribute.TUP_SIMPLE?this._data:this._mmap);
     return os.getBinBuffer();
 };
@@ -1312,7 +1312,7 @@ Tars.Tup.TUP_COMPLEX = Tars.UniAttribute.TUP_COMPLEX; //复杂TUP协议
 Tars.Tup.TUP_SIMPLE  = Tars.UniAttribute.TUP_SIMPLE;  //精简TUP协议
 
 Tars.Tup.prototype._writeTo = function() {
-    var os = new Tars.OutputStream();
+    var os = new Tars.TarsOutputStream();
     os._binBuffer.writeInt32(0);
     os.writeInt16  (1,  this._attribute.tupVersion);
     os.writeInt8   (2,  this._cPacketType);
@@ -1357,7 +1357,7 @@ Tars.Tup.prototype.encode = function() {
 }
 
 Tars.Tup.prototype.decode = function (binBuffer) {
-    var is  = new Tars.InputStream(binBuffer);
+    var is  = new Tars.TarsInputStream(binBuffer);
     var len = is._binBuffer.readInt32();
     if (len < 4) {
         throw Error("packet length too short");

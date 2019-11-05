@@ -22,10 +22,10 @@ console.log("ARRAY.LENGTH =", list.length);
 
 //TARS编解码示例
 
-var os = new TarsStream.OutputStream();
+var os = new TarsStream.TarsOutputStream();
 os.writeList(1, list);
 
-var is = new TarsStream.InputStream(os.getBinBuffer());
+var is = new TarsStream.TarsInputStream(os.getBinBuffer());
 var ta = is.readList(1, true, TarsStream.List(TarsStream.String));
 
 ta.forEach(function (value, index){

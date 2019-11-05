@@ -56,7 +56,7 @@ Ext.ExtInfo.prototype.readFromObject = function(json) {
     !json.hasOwnProperty("cons") || (this.cons.readFromObject(json.cons));
 }
 Ext.ExtInfo.prototype.toBinBuffer = function () {
-    var os = new TarsStream.OutputStream();
+    var os = new TarsStream.TarsOutputStream();
     this._writeTo(os);
     return os.getBinBuffer();
 }
