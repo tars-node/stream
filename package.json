@@ -1,6 +1,6 @@
 {
 	"name"          : "@tars/stream",
-  	"version"       : "2.0.0",
+  	"version"       : "2.0.1",
     "main"          : "tars.js",
     "types": "tars-stream.d.ts",
     "description"   : "A library for TARS Encode/Decode(TARS TUP)",
