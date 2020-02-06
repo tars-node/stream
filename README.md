@@ -1,6 +1,6 @@
 
 # 00-Installation
-> $ npm install @ tars / stream
+> $ npm install @ tars/stream
 
 # 01-Basic introduction and usage of stream module
 The stream module is used as the Tars (tars / TUP) basic protocol codec library. This module can be used to encode and decode data streams based on the tars protocol description format, and can communicate with TARS servers and terminals that currently use the tars protocol.
@@ -12,7 +12,7 @@ The tars file is the protocol description file that ends with ".tars".
 
 The tars file is generally developed by the back-end development. The front-end development needs to ask the back-end development for the confirmed tars file, and then convert it into a source code file suitable for NodeJS through tools.
 
-`` `c ++
+```c ++
 module TRom
 {
     struct User_t
@@ -38,7 +38,7 @@ module TRom
         int secRequest (vector <byte> binRequest, out vector <byte> binResponse);
     };
 };
-`` `
+```
 For example, after we save the above as "Protocol.tars", we can use the following command to generate different files:
 
 > $ tars2node Protocol.tars
@@ -46,22 +46,23 @@ For example, after we save the above as "Protocol.tars", we can use the followin
 The above command will ignore the interface description section, and only convert the data types such as "constant", "enumeration value", and "structure" defined in the file, for developers to use the Tars framework as the codec library file when calling tools. The generated file name is "Protocol.js".
 
 
-$ tars2node Protocol.tars --client
+> $ tars2node Protocol.tars --client
 
 The above command not only converts data types such as "constant", "enumeration value", "structure" defined in the file, but also translates the description section of the interface into the RPC call framework. The resulting file is called "ProtocolProxy.js" and is used by the caller. After the developer introduces this file, he can directly call the server-side service. For specific usage, please refer to the documentation of the "npm install rpc" module.
 
 
-$ tars2node Protocol.tars --server
+> $ tars2node Protocol.tars --server
 
 The above command not only converts data types such as "constant", "enumeration value", "structure" defined in the file, but also translates the description section of the interface into the server-side interface file. The generated file names are "Protocol.js" and "ProtocolImp.js". The developer should not modify "Protocol.js", but only need to continue to improve "ProtocolImp.js", and implement the specific functions in the file to serve as the Tars server. Provide services. For specific usage, please refer to the documentation of the "npm install rpc" module.
 
 
 ### Second, there is no protocol description file, when we need to write codec code by ourselves.
 For example, the service background provides the function of purchasing a certain product, which requires four parameters, such as "user number", "user nickname", "item number" and "number of products".
-The background numbers of these four parameters (that is, the tags in tars) are 0, 1, 2, and 3, respectively.
-`` `javascript
+The background numbers of these four parameters (that is, the tags in tars) are 0, 1, 2, and 3, respectively.  
+
+```javascript
 // First step, introduce tars / TUP codec library
-var Tars = require ("@ tars / stream");
+var Tars = require ("@tars/stream");
 
 // The second step, the client encodes the input parameters according to the server's requirements
 var ost = new Tars.TarsOutputStream ();
@@ -88,11 +89,11 @@ var num = ist.readUInt32 (3, true); // Read the "number of products" according t
 console.log ("name:", name);
 console.log ("num:", num);
 ...
-`` `
+```
 ### Third, the server accepts data in the TUP protocol format.
-`` `
+```js
 // First step, introduce tars / TUP codec library
-var Tars = require ("@ tars / stream");
+var Tars = require ("@tars/stream");
 
 // The second step, the client encodes the input parameters according to the server's requirements
 var tup_encode = new Tars.Tup ();
@@ -124,108 +125,147 @@ console.log("num :", num);
 ......
 ```
 
-35; 02- -stream259032;*253451;*303400;*25968;"2545454;"318671;"214501;"20351;.29992;"26041;"27861;
-*22522;*26412;*25968;*25454;*31867;*
-25968;[25454;]31867;"1244; 23545;"24212C++35821211;"353281;"30340;"25968;"254545454;"31867a""1244;
-124s, 124s, 124s, 124s, 124s.
-2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.4.;
-25972,124char(int8)12289short(int16)12289int12289long
-1.2.2.;2.5972.,124unsigned char(uint8),12289unsigned short(uint16),12289unsigned int
-25968;205401;124float(32/20301)*12289double(640,20301l)124
-1.2.2.1.1.2.2.2.2.2.2.2.2.2.2.2.2.2.
-*22797;*26434;*25968;*2545454;*31867;*
-25968;[25454;]31867;"1244; 23545;"24212C++35821211;"353281;"30340;"25968;"254545454;"31867a""1244;
-124s, 124s, 124s, 124s, 124s.
-1.25992;.tars2de226681;.25454541;.tars2021444444;.2644;.Structure `652882222312;.206561;.35201;.20351;.29992tars2node26681;.2545454541;.tars202144444444;.264698333a;.
-1.2.2.1.1.2.;1.1.2.;1.1.1.1.1.1.1.1.1.1.1.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.
-2.124; 25968;.324521.124vector&amp;lt DataType>.6528822312;"NodeJs20013;"203511;"29992stream].List(vproto)31867;.264699227169;.25311a.6528968;.12444
-(kproto,vproto)31867;.26469;.27169;.22531;.27169;.25311;.253111;.
-*20851;,20110;NodeJs20013;*25968;*254545454;"31867;"30340;"293051;"21035;.35828;"26126
-******************22222222222222222222.,.225568;.254545454542.`````{222222222222222222222259682.2559545454545454 JudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJud222222222222222555555666666222222222222222254;*31867;"32452;"20351;"299922;"21487;"201972;"3245225104;"208544;"20182390;.32423;"25968;"2545454;"31867;"
-***************** 3434999;;==================================2225596822222225559682,,==============222222225556666222222222222222555533333;;````````````````````````````````````````````````````````````````JudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJud5;12290;
-JudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJud12290s;
-JudJudJudJudJudJudJudJudJudJudJudJudJudsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsoundsound968;,31532;`20301;`40664;`35748;`20026;`1 to 20877;`21152;`19978;`215184;.30340;.52203011;.26469;.34920034;.25968;.2054012290
-JudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJud225928282222259682.3030031313192424242406666666666666666666666666666666666666353535353535353535353535353535352;;;````JudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJud22222222222222222222222222222222222222222222222222222222222222222222222222222225968;122901;
-********22222222222222222;;]]]]]]]]]],````````==========````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````Yeah.
-JudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJud1.2.2.2.,1.1.1.2.;2.2.2.;2.2.1.1.1.1.1.1.2.2.;2.2.2.2.2.2.2.2.2.2.2.2.
-21518;`21488;`26381;`21153;`31243;`2420722914;`265241;`203511;`303402;`26159;.GBK.,2145736865;.31526;.200188843;.21069.,38635353535356201520666666666666666666666666666271;;
-35; 03 `22522;`26412;`31867;`20351;`29992;`26041;'27861;
-'javascript
-//24517;[39035;]24341;]20837;stream27169;*22359
+# 02 - Data types supported by stream and how to use them
+**Basic data types**
+
+| Data type | Corresponding data types in c++|
+| ------------- | ------------- |
+| bool | bool |
+| signed integer | char(int8)、short(int16)、int(int32)、long long(int64) |
+| unsigned integer | unsigned char(uint8)、unsigned short(uint16)、unsigned int(uint32) |
+| number | float(32位)、double(64位) |
+| string | std::string |
+
+**Complex data type**
+
+| Data type | Corresponding data types in c++ |
+| ------------- | ------------- |
+| struct | struct（In the Tars framework, you need to use tars2node to generate classes in Javascript according to tars protocol files.）|
+| Binary buffer | vector&lt;char&gt;（Use the [stream].BinBuffer type in NodeJs to simulate）|
+| Array | vector&lt;DataType&gt;（Use the [stream].list (vproto) type in NodeJs to simulate）|
+| Dictionary | map&lt;KeyType, DataType&gt;（Use the [stream].Map (kproto, vproto) type in NodeJs to simulate）|
+
+**Special data types in NodeJs**
+
+**[1]：** Complex data types and basic data types, or a combination of complex data types and complex data types,can construct other advanced data types.
+
+**[2]：** Although Float and Double data types are supported in NodeJS, they are not recommended because there is a loss of precision in the values after serialization and deserialization, which in some cases can cause harm to the business logic.
+
+**[3]：** The 64-bit shaping we implement here is actually pseudo-64-bit, and its prototype in NodeJs is still Number.
+
+We know that Number types in Js are represented by the IEEE754 double-precision floating-point standard. IEEE754 specifies that the first significant digit defaults to 1, followed by 52 digits to represent the value.
+
+That is to say, the precision of the significant number provided by IEEE754 is 53 binary digits, which means that the Number value of NodeJs or the Int64 data type we implemented can only accurately represent integers whose absolute value is less than 2 to the power of 53.
+
+**[4]：** In Javascript, the String type is Unicode encoding, and we convert it to UTF8 encoding format when we encode and decode tars.
+
+The string received by the server is UTF8-encoded. If you need to process the string in a GBK-encoded way, the server needs to transcode (UTF8- > GBK) first.
+
+If the server uses GBK, to send a string before it is sent, it needs to be converted to UTF8 encoding.
+
+# 03 - Usage of basic types
+```javascript
+//stream module is required
 var Tars = require("@tars/stream");
-Tars.TarsOutputStream23545;"25968;"254545454;"36827;"34892;"24207;"21015;"21270
+
+//use Tars.TarsOutputStream to serialize data
 var os = new Tars.TarsOutputStream();
+
 os.writeBoolean(0, false);
-os.writeInt8(1,10);
+os.writeInt8(1, 10);
 os.writeInt16(2, 32767);
-os.writeInt32(3, 0x7FFFFFFFFE);
+os.writeInt32(3, 0x7FFFFFFE);
 os.writeInt64(4, 8589934591);
 os.writeUInt8(5, 200);
 os.writeUInt16(6, 65535);
-os.writeUInt32(7, 0xFFFFFFFFEE);
-os.writeString(8, "251051;"30340;"27979;"35797;"31243;"24207";
-Tars.TarsInputStream23545;*25968;"254545454;"36827;"348921;"21453;"24207;"21015;"21270
-var is = new Tars.TarsInputStream(os.getBinBuffer()
+os.writeUInt32(7, 0xFFFFFFEE);
+os.writeString(8, "我的测试程序");
+
+//use Tars.TarsInputStream to deserialize data
+var is = new Tars.TarsInputStream(os.getBinBuffer());
+
 var tp0 = is.readBoolean(0, true, false);
 console.log("BOOLEAN:", tp0);
+
 var tp1 = is.readInt8(1, true, 0);
 console.log("INT8:", tp1);
+
 var tp2 = is.readInt16(2, true, 0);
 console.log("INT16:", tp2);
+
 var tp3 = is.readInt32(3, true, 0);
 console.log("INT32:", tp3);
+
 var tp4 = is.readInt64(4, true, 0);
 console.log("INT64:", tp4);
+
 var tp5 = is.readUInt8(5, true, 0);
 console.log("UINT8:", tp5);
+
 var tp6 = is.readUInt16(6, true, 0);
 console.log("UINT16:", tp6);
+
 var tp7 = is.readUInt32(7, true, 0);
 console.log("UINT32:", tp7);
-var tp8 = is.readString(8, true,');
+
+var tp8 = is.readString(8, true, "");
 console.log("STRING:", tp8);
-'`
-35;04 `22797;`26434;`31867;`21069;`202562'-299922;`201109202;`31034;`22797;.26434;.31867;.
-1.2.2.1.1.1.1.1.1.1.1.1.1.2.2.,2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.
-22312C++20013s;
-'`cpp
-35include <string>
-35include <vector>
-std::vector<std::string>vec;
-vec.push-u back("qzone");
-vec.push-u back("wechat");
-'`
-20854;.20013std::vector<std:.string>std::vector349202;"310341;"221201;"31867a.32780d::Strings 2101777;.349200;.31034;.358131;.234811;.221202225152323232323235325034;"
-1.2.3.3.,1.3.3.;2.3.;2.3.;2.3.;2.3.;3.31034;.358131.,3131311.,241822.,330211;.20351;.200431..,199822tars303402;.32534035352929972124242424211260261;.303213203032030300341;;
-JudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJud2222222222222222222222222222222222220195;-30721;[25152;]330211;"23436;"251044;"30340;"21151;"3302165306
-'javascript
-var Tars = require("@tars/stream");
-var abc = new Tars.List(Tars.String);
-abc.push("qzone");
-abc.push("wechat");
-'`
-1.25968.,.32452.31862.,.3186.,.List349200,.Tars.31034;.25968.,318620.32780;.Tars.String21017777.299920.264690.349200;.31034;.358130;.23481222202202202515223325325325320303030300;===========404003131313131.;
-JudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJudJud968;*25454;*31867;*12290;**
-30446;[21069;]30340;]2925662;]20013d.`251055522259032;`253451;.2291419979;.30340s;.
-25968;[25454;]318671;"124; 255511;"36848";
-124s, 124s, 124s, 124s, 124s.
-1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.
-25972.,.1241; [stream].Int8, [stream].Int16, [stream].32, [stream].64, [stream].UInt8, [stream].UInt16, [stream].UInt32 {124;
-25968, 205402,1241; [stream].Float, [stream].Double *1244;
-1.2.2.2.;2.2.2.1.1.;2.2.2.2.2.
-2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.
-1.2.1.1.;1.1.1.1.;2.2.;2.2.2.;
-2.2.2.2.2.2.2.2.
-1.2.2.2.2.1.1.1.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.
+```
+
+# 04 - Complex type -  prototype used to represent complex types
+First of all, let's understand what is **type prototype**!
+
+In c++, we can declare the container vector of a string as follows:
+```cpp
+#include <string>
+#include <vector>
+
+std::vector<std::string> vec;
+vec.push_back("qzone");
+vec.push_back("wechat");
+```
+Where std::vector\<std::string>, std::vector represents the container type, and std::string represents the **type prototype** contained by the container.
+
+So how do we represent this type in NodeJs? And can it be seamlessly integrated with the coding and decoding library of tars?
+
+To solve this problem, we use the following methods to simulate std::vector in c++:
 ```javascript
 var Tars = require("@tars/stream");
 
-//c++语法：std::vector<int>
+var abc = new Tars.List(Tars.String);
+abc.push("qzone");
+abc.push("wechat");
+```
+
+Tars.List(Tars.String), Tars.List represents the array type, and Tars.String is used to represent the **type prototype** contained by the container.
+
+**Now, we understand that type prototypes are used to combine with complex data types to represent more complex data types.**
+
+In the current version, we support the following type prototype definitions:：
+
+| Data type | Description |
+| ------------- | ------------- |
+| bool       | [stream].Boolean |
+| integer         | [stream].Int8, [stream].Int16, [stream].32, [stream].64, [stream].UInt8, [stream].UInt16, [stream].UInt32 |
+| number         | [stream].Float, [stream].Double |
+| string       | [stream].String |
+| enum       | [stream].Enum |
+| array         | [stream].List |
+| dictionary         | [stream].Map |
+| binary buffer | [stream].BinBuffer |
+
+n order for you to understand the concept more clearly, we describe in advance the representation of some complex types in NodeJs.
+
+For more information on how to use the data type, please refer to the following detailed instructions.
+```javascript
+var Tars = require("@tars/stream");
+
+//c++ code：std::vector<int>
 var abc = new Tars.List(Tars.Int32)
 abc.push(10000);
 abc.push(10001);
 
-//c++语法：std::vector<std::vector<std::string> >
+//c++ code：std::vector<std::vector<std::string> >
 var abc = new Tars.List(Tars.List(Tars.String));
 var ta  = new Tars.List(Tars.String);
     ta.push("ta1");
@@ -236,12 +276,12 @@ var tb  = new Tars.List(Tars.String);
 abc.push(ta);
 abc.push(tb);
 
-//c++语法：std::map<std::string, std::string>
+//c++ code：std::map<std::string, std::string>
 var abc = new Tars.Map(Tars.String, Tars.String);
 abc.insert("key1", "value1");
 abc.insert("key2", "value2");
 
-//c++语法：std::map<std::string, std::vector<string> >
+//c++ code：std::map<std::string, std::vector<string> >
 var abc = new Tars.Map(Tars.String, Tars.List(Tars.String));
 var ta  = new Tars.List(Tars.String);
     ta.push("ta1");
@@ -252,13 +292,15 @@ var tb  = new Tars.List(Tars.String);
 abc.insert("key_a", ta);
 abc.insert("key_b", tb);
 
-//c++语法：std::vector<char>
+//c++ code：std::vector<char>
 var abc = new Tars.BinBuffer();
 abc.writeInt32(10000);
 abc.writeInt32(10001);
 ```
 
-# 05-Complex Types-Explanation of how to use struct```c++
+
+# 05-Complex Types-Explanation of how to use struct
+```c++
 module Ext
 {
     struct ExtInfo  {
@@ -317,38 +359,38 @@ Ext.ExtInfo.create = function (is) {
 }
 ```
 
-** Explanation on "module Ext" **
+**Explanation on "module Ext"**
 
-Ext is a namespace in C ++. In Javascript, we translate it into an Object. All "constants", "enumeration values", "structures", and "functions" in this namespace are attached to the Object. under.
+Ext is a namespace in C++. In Javascript, we translate it into an Object. All "constants", "enumeration values", "structures", and "functions" in this namespace are attached to the Object. under.
 
-** Representation of structures described in tars files **
+**Representation of structures described in tars files**
 
 First, the structure is translated into an Object. The translator generates data members based on the data type and default values ​​defined in the tars file. In addition to the data members defined in tars, the translator adds several auxiliary functions to the structure according to the needs of the codec. These functions, such as _writeTo, are called by the codec library where the structure needs to be serialized into a data stream. This function writes data members one by one into the data stream.
 
-** Auxiliary functions added by the translation program by default **
+**Auxiliary functions added by the translation program by default**
 
 | Method | Restrictions | Description |
 | ------------- | ------------- | ------------- |
-\ _write | Developer unavailable | Static function. Used when a structure is used as a type prototype. |
-\ _read | Unavailable to developers | Static functions. Used when a structure is used as a type prototype. |
-\ _readFrom | Unavailable to developers | Static function. Reads the data member values ​​of the structure from the data stream and generates a permissioned structure example to return. |
-\ _writeTo | Developer unavailable | Member function. Writes the data members of the current structure to the specified data stream. |
-\ _equal | Unavailable for developers | Member functions. Comparison function when the current structure is used as the dictionary type Key value. |
-\ _genKey | Unavailable for developers | Member functions. When the current structure is used as the dictionary type Key value, this function is used internally to obtain the alias of the current structure. |
-| toBinBuffer | Developer Available | Member Functions. Serializes the current structure into a binary buffer, and the return value type is require ("@ tars / stream"). BinBuffer. |
+\_write | Developer unavailable | Static function. Used when a structure is used as a type prototype. |
+\_read | Unavailable to developers | Static functions. Used when a structure is used as a type prototype. |
+\_readFrom | Unavailable to developers | Static function. Reads the data member values ​​of the structure from the data stream and generates a permissioned structure example to return. |
+\_writeTo | Developer unavailable | Member function. Writes the data members of the current structure to the specified data stream. |
+\_equal | Unavailable for developers | Member functions. Comparison function when the current structure is used as the dictionary type Key value. |
+\_genKey | Unavailable for developers | Member functions. When the current structure is used as the dictionary type Key value, this function is used internally to obtain the alias of the current structure. |
+| toBinBuffer | Developer Available | Member Functions. Serializes the current structure into a binary buffer, and the return value type is require ("@tars/stream"). BinBuffer. |
 create | Developer Available | Member Functions. Returns a completely new structure from the data stream. |
 
-** Example of using structure **
+**Example of using structure**
 
 We demonstrate the use of structures in three typical scenarios:
 
-** First scenario: ** When a structure is used as an argument to an RPC function.
+**First scenario:** When a structure is used as an argument to an RPC function.
 
 Since the rpc framework will serialize the parameters automatically, we don't need to care about encoding and decoding, just need to follow the common class, first assign new value, and then pass the parameters to call the RPC function directly.
 
 If the server has an RPC as defined below:
 
-`` `c ++
+```c ++
 module TRom
 {
     struct Param {
@@ -360,11 +402,11 @@ interface process {
 int getUserLevel (Param userInfo, out int iLevel);
 };
 };}
-`` `
+```
 
 After installing the above method to generate a tars codec file (the generated file name is Protocol.js), call the peer service as follows:
 
-`` `javascript
+```javascript
 var Tars = require ("@ tars / rpc"). client;
 var TRom = require ("./ Protocol.js"). TRom;
 
@@ -379,15 +421,15 @@ console.log ("success:", result);
 }, function (result) {
 console.log ("error:", result);
 }). done ();
-`` `
+```
 
-** Second scenario: ** The peer non-standard rpc framework accepts serialized data streams as parameters.
+**Second scenario:** The peer non-standard rpc framework accepts serialized data streams as parameters.
 
 In this scenario, we need to serialize the structure ourselves. Take the above tars file as an example, the general method is as follows:
 
-`` `
+```js
 // The client installs the following methods to package, and then sends the packaged binary data stream to the server
-var Tars = require ("@ tars / stream");
+var Tars = require ("@tars/stream");
 var TRom = require ("./ Protocol.js"). TRom;
 
 var usr = new TRom.Param ();
@@ -399,26 +441,26 @@ os.writeStruct (1, usr);
 
 // Package and get the binary data stream sent
 var toSendBuffer = os.getBinBuffer (). toNodeBuffer ();
-`` `
+```
 
 The client sends toSendBuffer to the server, and after the server accepts it, it decodes it as follows:
 
-`` `javascript
-var Tars = require ("@ tars / stream");
-var TRom = require ("./ Protocol.js"). TRom;
+```javascript
+var Tars = require ("@ tars/stream");
+var TRom = require ("./Protocol.js"). TRom;
 
 var is = new Tars.TarsInputStream (new Tars.BinBuffer (toSendBuffer));
 var usr = is.readStruct (1, true, TRom.Param);
 
 console.log ("TRom.Param.sUserName:", usr.sUserName);
 console.log ("TRom.Param.iId:", usr.iId);
-`` `
+```
 
-** Third scenario: ** The peer service requires the data stream to use the Tup protocol, and the names of the variables have been agreed. We can encode and decode as follows:
+**Third scenario:** The peer service requires the data stream to use the Tup protocol, and the names of the variables have been agreed. We can encode and decode as follows:
 
-`` `javascript
+```javascript
 // The client puts the structure into Tup according to the agreed name
-var Tars = require ("@ tars / stream");
+var Tars = require ("@tars/stream");
 var TRom = require ("./ Protocol.js"). TRom;
 
 var usr = new TRom.Param ();
@@ -430,7 +472,7 @@ tup_encode.writeStruct ("userInfo", usr);
 
 // Package and get the binary data stream sent
 var toSendBuffer = tup_encode.encode (true) .toNodeBuffer ();
-`` `
+```
 
 The client sends toSendBuffer to the server, and after the server accepts it, it decodes it as follows:
 ```javascript
@@ -449,23 +491,23 @@ console.log("TRom.Param.iId:", usr.iId);
 # 06-Complex Types-How to Use Vectors (Arrays)
 Since Javascript's native Array does not support some special operations in tars, we encapsulate it once. Developers can understand the following code:
 
-`` `javascript
-[stream] .List = function (proto)
+```javascript
+[stream].List = function (proto)
 {
     this.proto = proto;
     this.value = new Array ();
     this.push = function (value) {this.value.push (value);}
     ...
 }
-`` `
+```
 
-#### [stream] .List Object Properties
+#### [stream].List Object Properties
 | Properties | Description |
 | ------------- | ------------- |
 value | Array data type in Js. Tars.List is actually an upper-level encapsulation based on the Array. |
 | length | Returns the number of elements in the array. |
 
-#### [stream] .List Object Method
+#### [stream].List Object Method
 | Method | Description |
 | ------------- | ------------- |
 | at | Returns the element at the specified position in the array. |
@@ -476,10 +518,10 @@ readFromObject | Processes the incoming array and pushes it to the List instance
 
 proto is the type prototype of Vector (type prototype determines the method used when encoding and decoding Vector, so the correct type prototype must be passed in when declaring Vector).
 
-#### [stream] .List declaration example
+#### [stream].List declaration example
 
-`` `javascript
-var Tars = require ("@ tars / stream");
+```javascript
+var Tars = require ("@tars/stream");
 
 // Example 1: Declare vector <int32>
 var va = new Tars.List (Tars.Int32);
@@ -492,12 +534,12 @@ var vc = new Tars.List (Tars.Map (Tars.UInt32, Tars.String));
 
 // Example 4: Declare vector <struct>, assuming the structure name is TRom.Param
 var vd = new Tars.Vector (TRom.Param);
-`` `
+```
 
-#### [stream] .List operation example
+#### [stream].List operation example
 
-`` `javascript
-var Tars = require ("@ tars / stream");
+```javascript
+var Tars = require ("@tars/stream");
 
 var ve = new Tars.List (Tars.String);
 
@@ -554,13 +596,13 @@ var userList2 = new Tars.List (TRom.User_t);
 // readFromObject method
 userList2.readFromObject ([user1, user2, user3]);
 console.log ('userList2:', userList2.toObject ());
-`` `
+```
 
 # 07-Complex Type-Map (Dictionary) Instructions
 Because Javascript's native Object does not support some special operations in tars, we encapsulate it once. Developers can understand the following code:
 
-`` `javascript
-[stream] .Map = function (kproto, vproto) {
+```javascript
+[stream].Map = function (kproto, vproto) {
     var Map = function () {
         this._kproto = kproto;
         this._vproto = vproto;
@@ -571,14 +613,14 @@ Because Javascript's native Object does not support some special operations in t
 
 return new Map ();
 }
-`` `
+```
 
-#### [stream] .Map object properties
+#### [stream].Map object properties
 | Properties | Description |
 | ------------- | ------------- |
-| value | Object data type in Js. [stream] .Map is actually an upper-level encapsulation based on this Object. |
+| value | Object data type in Js. [stream].Map is actually an upper-level encapsulation based on this Object. |
 
-#### [stream] .Map method properties
+#### [stream].Map method properties
 | Method | Description |
 | ------------- | ------------- |
 insert | Adds an element to the dictionary. |
@@ -592,7 +634,7 @@ remove | Removes the corresponding value from the dictionary according to the sp
 | toObject | Converts a Map instance into a basic data object. Please refer to the following examples for specific usage. |
 readFromObject | Inserts the passed object into the Map instance after processing, please refer to the following examples for specific usage |
 
-#### [stream] .Map declaration example
+#### [stream].Map declaration example
 
 ```javascript
 var Tars = require("@tars/stream");
@@ -614,12 +656,12 @@ var me = new Tars.Map (Tars.String, Tars.Map (Tars.Int32, Tars.List (Tars.String
 
 // Example 6: Declare the method of map <string, struct>, assuming the structure name is TRom.Param
 var mf = new Tars.map (Tars.String, TRom.Param);
-`` `
+```
 
-#### [stream] .Map operation example
+#### [stream].Map operation example
 
-`` `javascript
-var Tars = require ("@ tars / stream");
+```javascript
+var Tars = require ("@tars/stream");
 
 var mc = new Tars.Map (Tars.String, Tars.String);
 
@@ -674,13 +716,13 @@ userMap2.readFromObject ({
 });
 console.log ('userMap2:', userMap2.toObject ());
 
-`` `
+```
 #### Support MultiMap type
 Support MultiMap type, this type allows a structure as the key of the Map. JavaScript native objects have no way to represent this data type, so this type does not implement the toObject and readFromObject methods supported by ordinary Maps.
 
 The operation example is as follows:
 
-`` `javascript
+```javascript
 // Construct Map type
 var msg = new Tars.Map (Test.StatMicMsgHead, Test.StatMicMsgBody);
 msg.put (StatMicMsgHead1, StatMicMsgBody1);
@@ -708,21 +750,21 @@ if (tb == undefined) {
 } else {
     console.log (tb.totalRspTime);
 }
-`` `
+```
 # 08-Complex Type-Instructions for Using Binary Buffer
 
 In the browser we can use "DataView" and "ArrayBuffer" to store and manipulate binary data. In order to improve performance, NodeJS provides a Buffer class. In order to facilitate the encoding and decoding of Tars, we have encapsulated the Buffer class. Developers can understand the following code:
 
-`` `javascript
-[stream] .BinBuffer = function (buffer) {
+```javascript
+[stream].BinBuffer = function (buffer) {
     this._buffer = (buffer! = undefined && buffer instanceof Buffer)? buffer: null;
     this._length = (buffer! = undefined && buffer instanceof Buffer)? buffer.length: 0;
     this._capacity = this._length;
     this._position = 0;
 }
-`` `
+```
 
-#### [stream] .BinBuffer Object Properties
+#### [stream].BinBuffer Object Properties
 | Properties | Description |
 | ------------- | ------------- |
 length | Get the data length of this binary buffer |
@@ -730,34 +772,32 @@ capacity | Get the maximum length of this binary buffer without reallocating mem
 position | Gets or sets the access pointer of the current binary buffer |
 
 > The difference between length and capacity:
-
 > Suppose we write an Int32 data to BinBuffer. After writing successfully, the difference between length and capacity:
 
 Since the BinBuffer class uses the default 512 length to request memory for the first allocation, the value of capacity at this time is 512
 
 > length indicates the size of the real data in the current buffer, and the value of length at this time is 4
 
-#### [stream] .BinBuffer method properties
+#### [stream].BinBuffer method properties
 
-** toNodeBuffer **
+**toNodeBuffer**
 
-> Function definition; [stream] .BinBuffer.toNodeBuffer ()
-
+> Function definition; [stream].BinBuffer.toNodeBuffer ()
 > Function: Returns the data of the current binary buffer. The value is a deep copy of the data of type NodeJS.Buffer.
 
 Input parameters: none
 
 Return data: NodeJS.Buffer type
 
-** print **
+**print**
 
-> Function definition: [stream] .BinBuffer.print ()
+> Function definition: [stream].BinBuffer.print ()
 
 > Function: Print the current buffer in 16 bytes per line and in hexadecimal
 
-** writeNodeBuffer **
+**writeNodeBuffer**
 
-> Function definition: [stream] .BinBuffer.writeNodeBuffer (srcBuffer, offset, byteLength)
+> Function definition: [stream].BinBuffer.writeNodeBuffer (srcBuffer, offset, byteLength)
 
 > Function: Write NodeJS.Buffer class data to binary buffer
 
@@ -775,17 +815,17 @@ Return data: NodeJS.Buffer type
 
 > [2] `position = position of the current BinBuffer (position pointer of the original Buffer) + byteLength`
 
-** writeBinBuffer **
+**writeBinBuffer**
 
-> Function definition: [stream] .BinBuffer.writeBinBuffer (value)
+> Function definition: [stream].BinBuffer.writeBinBuffer (value)
 
-> Function: Write [stream] .BinBuffer data to binary buffer
+> Function: Write [stream].BinBuffer data to binary buffer
 
 > Input parameters:
 
 > | Parameter | Data Type | Description |
 > | ------------- | ------------- | ------------- |
-> | value | [stream] .BinBuffer | represents a binary buffer |
+> | value | [stream].BinBuffer | represents a binary buffer |
 
 > Function description:
 
@@ -793,9 +833,9 @@ Return data: NodeJS.Buffer type
 
 > [2] `position = position of the current BinBuffer (position pointer of the original Buffer) + value.length`
 
-** writeInt8 **
+**writeInt8**
 
-> Function definition: [stream] .BinBuffer.writeInt8 (value)
+> Function definition: [stream].BinBuffer.writeInt8 (value)
 
 > Function: Write Int8 data to binary buffer
 
@@ -811,9 +851,9 @@ Return data: NodeJS.Buffer type
 
 > [2] `position = position of the current BinBuffer (position pointer of the original Buffer) + 1`
 
-** writeInt16 **
+**writeInt16**
 
-> Function definition: [stream] .BinBuffer.writeInt16 (value)
+> Function definition: [stream].BinBuffer.writeInt16 (value)
 
 > Function: Write Int16 data to binary buffer
 
@@ -831,9 +871,9 @@ Return data: NodeJS.Buffer type
 
 > [3] Data storage uses network byte order
 
-** writeInt32 **
+**writeInt32**
 
-> Function definition: [stream] .BinBuffer.writeInt32 (value)
+> Function definition: [stream].BinBuffer.writeInt32 (value)
 
 > Function: Write Int32 data to binary buffer
 
@@ -851,9 +891,9 @@ Return data: NodeJS.Buffer type
 
 > [3] Data storage uses network byte order
 
-** writeInt64 **
+**writeInt64**
 
-> Function definition: [stream] .BinBuffer.writeInt64 (value)
+> Function definition: [stream].BinBuffer.writeInt64 (value)
 
 > Function: Write Int64 data to binary buffer
 
@@ -871,9 +911,9 @@ Return data: NodeJS.Buffer type
 
 > [3] Data storage uses network byte order
 
-** writeUInt8 **
+**writeUInt8**
 
-> Function definition: [stream] .BinBuffer.writeUInt8 (value)
+> Function definition: [stream].BinBuffer.writeUInt8 (value)
 
 > Function: Write UInt8 data to binary buffer
 
@@ -889,9 +929,9 @@ Return data: NodeJS.Buffer type
 
 > [2] `position = position of the current BinBuffer (position pointer of the original Buffer) + 1`
 
-** writeUInt16 **
+**writeUInt16**
 
-> Function definition: [stream] .BinBuffer.writeUInt16 (value)
+> Function definition: [stream].BinBuffer.writeUInt16 (value)
 
 > Function: Write UInt16 data to binary buffer
 
@@ -909,9 +949,9 @@ Return data: NodeJS.Buffer type
 
 > [3] Data storage uses network byte order
 
-** writeUInt32 **
+**writeUInt32**
 
-> Function definition: [stream] .BinBuffer.writeUInt32 (value)
+> Function definition: [stream].BinBuffer.writeUInt32 (value)
 
 > Function: Write UInt32 data to binary buffer
 
@@ -929,9 +969,9 @@ Return data: NodeJS.Buffer type
 
 > [3] Data storage uses network byte order
 
-** writeFloat **
+**writeFloat**
 
-> Function definition: [stream] .BinBuffer.writeFloat (value)
+> Function definition: [stream].BinBuffer.writeFloat (value)
 
 > Function: Write Float (32-bit, single-precision floating point) data to binary buffer
 
@@ -949,9 +989,9 @@ Return data: NodeJS.Buffer type
 
 > [3] Data storage uses network byte order
 
-** writeDouble **
+**writeDouble**
 
-> Function definition: [stream] .BinBuffer.writeDouble (value)
+> Function definition: [stream].BinBuffer.writeDouble (value)
 
 > Function: Write Double (64-bit, double-precision floating point) data to binary buffer
 
@@ -969,9 +1009,9 @@ Return data: NodeJS.Buffer type
 
 > [3] Data storage uses network byte order
 
-** writeString **
+**writeString**
 
-> Function definition: [stream] .BinBuffer.writeString (value)
+> Function definition: [stream].BinBuffer.writeString (value)
 
 > Function: Write String (UTF8 encoding) data to binary buffer
 
@@ -987,9 +1027,9 @@ Return data: NodeJS.Buffer type
 
 > [2] `position = position of the current BinBuffer (position pointer of the original Buffer) + byte length of the string`
 
-** readInt8 **
+**readInt8**
 
-> Function definition: [stream] .BinBuffer.readInt8 ()
+> Function definition: [stream].BinBuffer.readInt8 ()
 
 > Function: Read a variable of type Int8 from the binary buffer according to the current data pointer
 
@@ -999,9 +1039,9 @@ Input parameters: none
 
 > [1] `position = position of the current BinBuffer (position pointer of the original Buffer) + 1`
 
-** readInt16 **
+**readInt16**
 
-> Function definition: [stream] .BinBuffer.readInt16 ()
+> Function definition: [stream].BinBuffer.readInt16 ()
 
 > Function: Read a variable of type Int16 from the binary buffer according to the current data pointer
 
@@ -1011,9 +1051,9 @@ Input parameters: none
 
 > [1] `position = position of the current BinBuffer (position pointer of the original Buffer) + 2`
 
-** readInt32 **
+**readInt32**
 
-> Function definition: [stream] .BinBuffer.readInt32 ()
+> Function definition: [stream].BinBuffer.readInt32 ()
 
 > Function: Read a variable of type Int32 from the binary buffer according to the current data pointer
 
@@ -1023,9 +1063,9 @@ Input parameters: none
 
 > [1] `position = position of the current BinBuffer (position pointer of the original Buffer) + 4`
 
-** readInt64 **
+**readInt64**
 
-> Function definition: [stream] .BinBuffer.readInt64 ()
+> Function definition: [stream].BinBuffer.readInt64 ()
 
 > Function: Read a variable of type Int64 from the binary buffer according to the current data pointer
 
@@ -1035,9 +1075,9 @@ Input parameters: none
 
 > [1] `position = position of the current BinBuffer (position pointer of the original Buffer) + 8`
 
-** readUInt8 **
+**readUInt8**
 
-> Function definition: [stream] .BinBuffer.readUInt8 ()
+> Function definition: [stream].BinBuffer.readUInt8 ()
 
 > Function: Read a UInt8 variable from the binary buffer according to the current data pointer
 
@@ -1047,9 +1087,9 @@ Input parameters: none
 
 > [1] `position = position of the current BinBuffer (position pointer of the original Buffer) + 1`
 
-** readUInt16 **
+**readUInt16**
 
-> Function definition: [stream] .BinBuffer.readUInt16 ()
+> Function definition: [stream].BinBuffer.readUInt16 ()
 
 > Function: Read a UInt16 variable from the binary buffer according to the current data pointer
 
@@ -1059,9 +1099,9 @@ Input parameters: none
 
 > [1] `position = position of the current BinBuffer (position pointer of the original Buffer) + 2`
 
-** readUInt32 **
+**readUInt32**
 
-> Function definition: [stream] .BinBuffer.readUInt32 ()
+> Function definition: [stream].BinBuffer.readUInt32 ()
 
 > Function: Read a UInt32 variable from the binary buffer according to the current data pointer
 
@@ -1071,9 +1111,9 @@ Input parameters: none
 
 > [1] `position = position of the current BinBuffer (position pointer of the original Buffer) + 4`
 
-** readFloat **
+**readFloat**
 
-> Function definition: [stream] .BinBuffer.readFloat ()
+> Function definition: [stream].BinBuffer.readFloat ()
 
 > Function: Read a variable of type Float (32-bit single-precision floating-point number) from the binary buffer according to the current data pointer
 
@@ -1083,9 +1123,9 @@ Input parameters: none
 
 > [1] `position = position of the current BinBuffer (position pointer of the original Buffer) + 4`
 
-** readDouble **
+**readDouble**
 
-> Function definition: [stream] .BinBuffer.readDouble ()
+> Function definition: [stream].BinBuffer.readDouble ()
 
 > Function: Read a variable of type Double (64-bit double-precision floating-point number) from the binary buffer according to the current data pointer
 
@@ -1095,9 +1135,9 @@ Input parameters: none
 
 > [1] `position = position of the current BinBuffer (position pointer of the original Buffer) + 8`
 
-** readString **
+**readString**
 
-> Function definition: [stream] .BinBuffer.readString (byteLength)
+> Function definition: [stream].BinBuffer.readString (byteLength)
 
 > Function: Read a String (UTF8 encoding) variable from the binary buffer according to the current data pointer
 
@@ -1113,11 +1153,11 @@ Input parameters: none
 
 > [2] Background encoding of strings requires UTF8 character set
 
-** readBinBuffer **
+**readBinBuffer**
 
-> Function definition: [stream] .BinBuffer.readBinBuffer (byteLength)
+> Function definition: [stream].BinBuffer.readBinBuffer (byteLength)
 
-> Function: Read a variable of type [stream] .BinBuffer from the binary buffer according to the current data pointer
+> Function: Read a variable of type [stream].BinBuffer from the binary buffer according to the current data pointer
 
 > Input parameters:
 
@@ -1132,27 +1172,27 @@ Input parameters: none
 # 09-Coding Tools-How to Use OutputStream
 
 **Constructor**
-> Function definition: [stream] .OutputStram ()
+> Function definition: [stream].OutputStram ()
 
 > Function: declare an output stream object
 
 Input parameters: none
 
-Example usage: var os = new [stream] .TarsOutputStream ()
+Example usage: var os = new [stream].TarsOutputStream ()
 
-** getBinBuffer **
+**getBinBuffer**
 
-> Function definition: var buffer = [stream] .TarsOutputStream.getBinBuffer ()
+> Function definition: var buffer = [stream].TarsOutputStream.getBinBuffer ()
 
 > Function role: Call this function to get the binary data stream after packing
 
 Input parameters: none
 
-> Return data: return the packed binary data stream, the return value type is [stream] .BinBuffer
+> Return data: return the packed binary data stream, the return value type is [stream].BinBuffer
 
-** writeBoolean **
+**writeBoolean**
 
-> Function definition: [stream] .TarsOutputStream.writeBoolean (tag, value)
+> Function definition: [stream].TarsOutputStream.writeBoolean (tag, value)
 
 > Function: Write a Boolean variable to the data stream
 
@@ -1163,11 +1203,11 @@ Input parameters: none
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
 > | value | Boolean | represents the value of the variable, ranging from {false, true} |
 
-Return data: void
+>Return data: void
 
-** writeInt8 **
+**writeInt8**
 
-> Function definition: [stream] .TarsOutputStream.writeInt8 (tag, value)
+> Function definition: [stream].TarsOutputStream.writeInt8 (tag, value)
 
 > Function role: Write a variable of type int8 to the data stream
 
@@ -1178,11 +1218,11 @@ Return data: void
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
 > | value | int8 (Number) | represents the value of the variable, value range [-128, 127] |
 
-Return data: void
+>Return data: void
 
-** writeInt16 **
+**writeInt16**
 
-> Function definition: [stream] .TarsOutputStream.writeInt16 (tag, value)
+> Function definition: [stream].TarsOutputStream.writeInt16 (tag, value)
 
 > Function: Write a variable of type Int16 to the data stream
 
@@ -1193,11 +1233,11 @@ Return data: void
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
 > | value | int16 (Number) | represents the value of the variable, value range [-32768, 32767] |
 
-Return data: void
+>Return data: void
 
-** writeInt32 **
+**writeInt32**
 
-> Function definition: [stream] .TarsOutputStream.writeInt32 (tag, value)
+> Function definition: [stream].TarsOutputStream.writeInt32 (tag, value)
 
 > Function: Write an Int32 variable to the data stream
 
@@ -1208,11 +1248,11 @@ Return data: void
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
 > | value | int32 (Number) | represents the value of the variable, value range [-2147483648, 2147483647] |
 
-Return data: void
+>Return data: void
 
-** writeInt64 **
+**writeInt64**
 
-> Function definition: [stream] .TarsOutputStream.writeInt64 (tag, value)
+> Function definition: [stream].TarsOutputStream.writeInt64 (tag, value)
 
 > Function: Write an Int64 variable to the data stream
 
@@ -1223,11 +1263,11 @@ Return data: void
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
 > | value | int64 (Number) | represents the value of this variable, the value range [-9223372036854775808, 9223372036854775807] |
 
-Return data: void
+>Return data: void
 
-** writeUInt8 **
+**writeUInt8**
 
-> Function definition: [stream] .TarsOutputStream.writeUInt8 (tag, value)
+> Function definition: [stream].TarsOutputStream.writeUInt8 (tag, value)
 
 > Function: Write a UInt8 variable to the data stream
 
@@ -1238,11 +1278,11 @@ Return data: void
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
 > | value | UInt8 (Number) | represents the value of the variable, in the range [0, 255] |
 
-Return data: void
+>Return data: void
 
-** writeUInt16 **
+**writeUInt16**
 
-> Function definition: [stream] .TarsOutputStream.writeUInt16 (tag, value)
+> Function definition: [stream].TarsOutputStream.writeUInt16 (tag, value)
 
 > Function: Write a UInt16 variable to the data stream
 
@@ -1253,11 +1293,11 @@ Return data: void
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
 > | value | UInt16 (Number) | represents the value of the variable, value range [0, 65535] |
 
-Return data: void
+>Return data: void
 
-** writeUInt32 **
+**writeUInt32**
 
-> Function definition: [stream] .TarsOutputStream.writeUInt32 (tag, value)
+> Function definition: [stream].TarsOutputStream.writeUInt32 (tag, value)
 
 > Function: Write a UInt32 variable to the data stream
 
@@ -1268,11 +1308,11 @@ Return data: void
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
 > | value | UInt32 (Number) | represents the value of the variable, value range [0, 4294967295] |
 
-Return data: void
+>Return data: void
 
-** writeFloat **
+**writeFloat**
 
-> Function definition: [stream] .TarsOutputStream.writeFloat (tag, value)
+> Function definition: [stream].TarsOutputStream.writeFloat (tag, value)
 
 > Function: Write a float (32-bit) variable to the data stream
 
@@ -1283,11 +1323,11 @@ Return data: void
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
 > | value | Float (Number) | Single-precision floating-point numbers, because of the loss of precision, this type is not recommended |
 
-Return data: void
+>Return data: void
 
 **writeDouble**
 
-> Function definition: [stream] .TarsOutputStream.writeDouble (tag, value)
+> Function definition: [stream].TarsOutputStream.writeDouble (tag, value)
 
 > Function: Write a double (64-bit) variable to the data stream
 
@@ -1298,11 +1338,11 @@ Return data: void
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
 > | value | Double (Number) | Double-precision floating-point numbers, because of the loss of precision, this type is not recommended |
 
-Return data: void
+>Return data: void
 
-** writeString **
+**writeString**
 
-> Function definition: [stream] .TarsOutputStream.writeString (tag, value)
+> Function definition: [stream].TarsOutputStream.writeString (tag, value)
 
 > Function: Write a String variable to the data stream
 
@@ -1313,9 +1353,9 @@ Return data: void
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
 > | value | String | represents the value of the variable, the string encoding character set is UTF8 |
 
-Return data: void
+>Return data: void
 
-** writeStruct **
+**writeStruct**
 
 > Function definition: writeStruct (tag, value)
 
@@ -1328,11 +1368,11 @@ Return data: void
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
 > | value | Custom structure | The structure must be converted using tars2node, otherwise the codec may fail due to the lack of auxiliary functions |
 
-Return data: void
+>Return data: void
 
-** writeBytes **
+**writeBytes**
 
-> Function definition: [stream] .TarsOutputStream.writeBytes (tag, value)
+> Function definition: [stream].TarsOutputStream.writeBytes (tag, value)
 
 > Function: Write a variable of type `char *` or `vector <char>` to the data stream
 
@@ -1341,13 +1381,13 @@ Return data: void
 > | Parameter | Data Type | Description |
 > | ------------- | ------------- | ------------- |
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
-> | value | [stream] .BinBuffer | BinBuffer is a wrapper for the Buffer class in NodeJs, and also integrates auxiliary functions needed for encoding and decoding |
+> | value | [stream].BinBuffer | BinBuffer is a wrapper for the Buffer class in NodeJs, and also integrates auxiliary functions needed for encoding and decoding |
 
-Return data: void
+>Return data: void
 
-** writeList **
+**writeList**
 
-> Function definition: [stream] .TarsOutputStream.writeList (tag, value)
+> Function definition: [stream].TarsOutputStream.writeList (tag, value)
 
 > Function: Write a variable of type `vector <T>` (T cannot be byte) to the data stream
 
@@ -1356,13 +1396,13 @@ Return data: void
 > | Parameter | Data Type | Description |
 > | ------------- | ------------- | ------------- |
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
-> | value | [stream] .List (T) | type prototype of this variable |
+> | value | [stream].List (T) | type prototype of this variable |
 
-Return data: void
+>Return data: void
 
-** writeMap **
+**writeMap**
 
-> Function definition: [stream] .TarsOutputStream.writeMap (tag, value)
+> Function definition: [stream].TarsOutputStream.writeMap (tag, value)
 
 > Function: Write a field of type `map <T, V>` to the data stream.
 
@@ -1371,17 +1411,22 @@ Return data: void
 > | Parameter | Data Type | Description |
 > | ------------- | ------------- | ------------- |
 > | tag | UInt8 | Represents the numeric identifier of the variable, value range [0, 255] |
-> | value | [stream] .Map (T, V) | type prototype of this variable |
+> | value | [stream].Map (T, V) | type prototype of this variable |
 
-Return data: void
+>Return data: void
 
-#10 - decoding tool - instructions for using InputStream
+# 10 - decoding tool - instructions for using InputStream
 **Constructor**
 >Function definition: [stream]. Tarsinputstream (binbuffer)
+
 >Function to declare an input stream object
->Input parameters:
->&amp;Nbsp; &amp; nbsp; &amp; nbsp; &amp; nbsp; &amp; nbsp; &amp; nbsp; &amp; nbsp; &amp; nbsp; binbuffer the binary data stream to be decoded. The value type must be [stream]. Binbuffer, not the buffer class implemented in nodejs.
->Use example: VaR is = new [stream]. Tarsinputstream (new [stream]. Binbuffer (node. Buffer))
+
+>Input parameters:  
+>binbuffer the binary data stream to be decoded. The value type must be [stream]. Binbuffer, not the buffer class implemented in nodejs.
+
+>Use example:   
+>var is = new [stream]. Tarsinputstream (new [stream]. Binbuffer (node. Buffer))  
+
 **readBoolean**
 >Function definition: VaR value = [stream]. Tarsinputstream.readboolean (tag, require, default)
 >Function to read a boolean type value from a data stream
@@ -1398,7 +1443,7 @@ Return data: void
 
 **readInt8**
 
->Function definition: [stream]. Tarsinputstream.readint8 (tag, require, default)
+>Function definition: [stream].Tarsinputstream.readint8 (tag, require, default)
 >Function: read a value of type int8 from the data stream
 >Input parameters:
 >|Parameter | data type | description|
@@ -1410,6 +1455,7 @@ Return data: void
 >>When 'require = = = true' &amp; nbsp; &amp; nbsp;, if the current variable is not in the data stream, the system will throw an exception that does not exist to read the data;
 >>When 'require = = = false', if the current variable is not in the data stream, the system will return the default value of the variable;
 >Return data: int8, value range [- 128, 127]
+
 **readInt16**
 >Function definition: [stream]. Tarsinputstream.readint16 (tag, require, default)
 >Function: read a value of type int16 from the data stream
@@ -1422,7 +1468,8 @@ Return data: void
 >>Description of require:
 >>When 'require = = = true' &amp; nbsp; &amp; nbsp;, if the current variable is not in the data stream, the system will throw an exception that does not exist to read the data;
 >>When 'require = = = false', if the current variable is not in the data stream, the system will return the default value of the variable;
->Return data: int16, value range [- 32768, 32767]
+>Return data: int16, value range [- 32768, 32767]  
+
 **readInt32**
 >Function definition: [stream]. Tarsinputstream.readint32 (tag, require, default)
 >Function to read a value of type int32 from the data stream
@@ -1433,10 +1480,10 @@ Return data: void
 >|Require | Boolean | indicates whether the current variable is a required value. The value range is {false, true}|
 >|Default | int32 | indicates the return value in case of unsuccessful reading of variable. The value range is [- 2147483648, 2147483647]|
 >>Description of require:
-
 >>When 'require = = = true' &amp; nbsp; &amp; nbsp;, if the current variable is not in the data stream, the system will throw an exception that does not exist to read the data;
 >>When 'require = = = false', if the current variable is not in the data stream, the system will return the default value of the variable;
->Return data: int32, value range [- 2147483648, 2147483647]
+>Return data: int32, value range [- 2147483648, 2147483647]  
+
 **readInt64**
 >Function definition: [stream]. Tarsinputstream.readint64 (tag, require, default)
 >Function: read a value of type Int64 from the data stream
@@ -1449,7 +1496,8 @@ Return data: void
 >>Description of require:
 >>When 'require = = = true' &amp; nbsp; &amp; nbsp;, if the current variable is not in the data stream, the system will throw an exception that does not exist to read the data;
 >>When 'require = = = false', if the current variable is not in the data stream, the system will return the default value of the variable;
->Return data: Int64 (number), value range [- 9223372036854775808, 9223372036854775807]
+>Return data: Int64 (number), value range [- 9223372036854775808, 9223372036854775807]  
+
 **readUInt8**
 >Function definition: [stream]. Tarsinputstream.readuint8 (tag, require, default)
 >Function: read a uint8 type value from the data stream
@@ -1462,7 +1510,8 @@ Return data: void
 >>Description of require:
 >>When 'require = = = true' &amp; nbsp; &amp; nbsp;, if the current variable is not in the data stream, the system will throw an exception that does not exist to read the data;
 >>When 'require = = = false', if the current variable is not in the data stream, the system will return the default value of the variable;
->Return data: uint8 (number), value range [0, 255]
+>Return data: uint8 (number), value range [0, 255]  
+
 **readUInt16**
 >Function definition: [stream].TarsInputStream.readUInt16 (tag, require, default)
 >Function: read a uint16 type value from the data stream
@@ -1476,7 +1525,8 @@ Return data: void
 >>Description of require:
 >>When 'require = = = true' &amp; nbsp; &amp; nbsp;, if the current variable is not in the data stream, the system will throw an exception that does not exist to read the data;
 >>When 'require = = = false', if the current variable is not in the data stream, the system will return the default value of the variable;
->Return data: uint16 (number), value range [0, 65535]
+>Return data: uint16 (number), value range [0, 65535]  
+
 **readUInt32**
 >Function definition: [stream]. Tarsinputstream.readuint32 (tag, require, default)
 >Function: read a uint32 type value from the data stream
@@ -1489,7 +1539,8 @@ Return data: void
 >>Description of require:
 >>When 'require = = = true' &amp; nbsp; &amp; nbsp;, if the current variable is not in the data stream, the system will throw an exception that does not exist to read the data;
 >>When 'require = = = false', if the current variable is not in the data stream, the system will return the default value of the variable;
->Return data: uint32 (number), value range [0, 4294967295]
+>Return data: uint32 (number), value range [0, 4294967295]  
+
 **readFloat**
 >Function definition: [stream]. Tarsinputstream.readfloat (tag, require, default)
 >Function: read a float (32-bit, single precision floating-point) type value from the data stream
@@ -1502,7 +1553,8 @@ Return data: void
 >>Description of require:
 >>When 'require = = = true' &amp; nbsp; &amp; nbsp;, if the current variable is not in the data stream, the system will throw an exception that does not exist to read the data;
 >>When 'require = = = false', if the current variable is not in the data stream, the system will return the default value of the variable;
->Return data: float (number)
+>Return data: float (number)  
+
 **readDouble**
 >Function definition: [stream]. Tarsinputstream.readfloat (tag, require, default)
 >Function to read a double (64 bit, double precision floating-point) type value from the data stream
@@ -1530,7 +1582,8 @@ Return data: void
 >>Description of require:
 >>When 'require = = = true' &amp; nbsp; &amp; nbsp;, if the current variable is not in the data stream, the system will throw an exception that does not exist to read the data;
 >>When 'require = = = false', if the current variable is not in the data stream, the system will return the default value of the variable;
->Return data: string (utf8 encoding)
+>Return data: string (utf8 encoding)  
+
 **readStruct**
 >Function definition: [stream]. Tarsinputstream.readstruct (tag, require, type
 >Function to read a value of a custom structure type from a data stream
@@ -1543,7 +1596,8 @@ Return data: void
 >>Description of require:
 >>When 'require = = = true' &amp; nbsp; &amp; nbsp;, if the current variable is not in the data stream, the system will throw an exception that does not exist to read the data;
 >>When 'require = = = false', if the current variable is not in the data flow, the system will return an empty instance of the structure;
->Return data: instances of custom structures
+>Return data: instances of custom structures  
+
 **readBytes**
 >Function definition: [stream]. Tarsinputstream.readbytes (tag, require, type_
 >Function: read a value of type '[stream]. Binbuffer' from the data stream
@@ -1556,7 +1610,8 @@ Return data: void
 >>Description of require:
 >>When 'require = = = true' &amp; nbsp; &amp; nbsp;, if the current variable is not in the data stream, the system will throw an exception that does not exist to read the data;
 >>When 'require = = = false', if the current variable is not in the data stream, the system will return an empty instance of [stream]. Binbuffer;
->Return data: [stream]. Binbuffer
+>Return data: [stream].Binbuffer  
+
 **readList**
 >Function definition: [stream]. Tarsinputstream. Readlist (tag, require, type_
 >Function function: read a value of type '[stream]. List < T >' from the data stream
@@ -1569,7 +1624,8 @@ Return data: void
 >>Description of require:
 >>When 'require = = = true' &amp; nbsp; &amp; nbsp;, if the current variable is not in the data stream, the system will throw an exception that does not exist to read the data;
 >>When 'require = = = false', if the current variable is not in the data stream, the system will return an empty instance of [stream]. List (T);
->Return data: [stream]. List
+>Return data: [stream].List  
+
 **readMap**
 >Function definition: [stream]. Tarsinputstream.readmap (tag, require, type_
 >Function function: read a value of type '[stream]. Map < T, V >' from the data stream
