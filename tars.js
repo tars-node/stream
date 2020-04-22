@@ -149,7 +149,7 @@ var HeroList = function (proto, bValue) {
     this._proto     = proto;
     this._bValue = bValue || 0;
     this.value      = new Array();
-    this._classname = "List<" + proto._classname + ">";
+    this._classname = "list<" + proto._classname + ">";
 };
 
 HeroList.prototype._write  = function(os, tag, val, bRaw, bString) { return os.writeList(tag, val, bRaw, bString); };
