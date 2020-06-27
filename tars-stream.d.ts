@@ -300,6 +300,7 @@ export class UniAttribute {
 export class Tup {
   static TUP_COMPLEX: 2
   static TUP_SIMPLE: 3
+  static JSON_VERSION: 5
 
   servantName: string
   funcName: string

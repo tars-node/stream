@@ -1194,6 +1194,7 @@ Tars.UniAttribute = function () {
 
 Tars.UniAttribute.TUP_COMPLEX = 2;
 Tars.UniAttribute.TUP_SIMPLE  = 3;
+Tars.UniAttribute.JSON_VERSION  = 5;
 
 Tars.UniAttribute.prototype._getkey = function(name, DEFAULT_VALUE, TYPE_T, FUNC, bValue) {
     if (this._iver == Tars.UniAttribute.TUP_SIMPLE) {
@@ -1310,6 +1311,7 @@ Tars.Tup = function () {
 
 Tars.Tup.TUP_COMPLEX = Tars.UniAttribute.TUP_COMPLEX; //复杂TUP协议
 Tars.Tup.TUP_SIMPLE  = Tars.UniAttribute.TUP_SIMPLE;  //精简TUP协议
+Tars.Tup.JSON_VERSION  = Tars.UniAttribute.JSON_VERSION;  //tars-json协议
 
 Tars.Tup.prototype._writeTo = function() {
     var os = new Tars.TarsOutputStream();
