@@ -1,0 +1,15 @@
+module LONGTEST
+{
+    struct MapLong
+	{
+		0 optional   map<string, long>		    m1;
+    	1 optional   map<long, string>			m2;
+    	2 optional   map<string, map<string, long>>			m3;
+    	3 optional   map<string, map<long, string>>			m4;
+		4 optional   vector<map<string, long>>			m5;
+		5 optional   vector<long>			m6;
+		6 optional   vector<string>			m7;
+        7 optional   string m8="czzouTest";
+	};
+
+};

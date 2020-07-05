@@ -1,9 +1,9 @@
 var assert = require("assert");
 var util   = require("util");
-var Big = require('big.js');
 var Tars    = module.exports = {};
 var BIT32 = 4294967296;
 var BIT31 = BIT32 / 2;
+var Big = typeof Buffer.prototype.writeBigInt64BE === "function" ? null : require('big.js');
 
 /**
  * 异常类
@@ -472,34 +472,38 @@ Tars.BinBuffer.prototype.writeUInt32 = function (value) {
 }
 
 Tars.BinBuffer.prototype.writeInt64  = function (value, bString) {
-    var H4, L4;
-    if (bString === true || bString === 1) {
-        //字符串int64写入，支持int64精度
-        var val = new Big(value);
-        if (val.s === 1) {
-            H4 = +val.div(BIT32).round(0,0).toString();
-            L4 = +val.mod(BIT32).toString();
-        } else {
-            H4 = val.div(BIT32).round(0,3);
-            L4 = +val.minus((new Big(H4)).times(BIT32)).toString();
-            H4 = +H4.plus(BIT32).toString();
-        }
-    } else {
-        //Number写入，支持到2^53-1的精度
-        var val = +value;
-        if (val > 0){
-            H4 = Math.floor(val/BIT32);
-            L4 = val - H4 * BIT32;
-        } else {
-            H4 = Math.floor(val/BIT32);
-            L4 = val - H4 * BIT32;
-            H4 += BIT32;
-        }
-    }
-
     this._allocate(8);
-    this._buffer.writeUInt32BE(H4, this._position);
-    this._buffer.writeUInt32BE(L4, this._position + 4);
+    var H4, L4, val;
+    //nodejs v12+ 直接支持bigint写入(value仍然是string表达时才支持高精度)
+    if(typeof this._buffer.writeBigInt64BE === "function"){
+        this._buffer.writeBigInt64BE(BigInt(value), this._position);
+    } else {
+        if (bString === true || bString === 1) {
+            //字符串int64写入，支持int64精度
+            val = new Big(value);
+            if (val.s === 1) {
+                H4 = +val.div(BIT32).round(0,0).toString();
+                L4 = +val.mod(BIT32).toString();
+            } else {
+                H4 = val.div(BIT32).round(0,3);
+                L4 = +val.minus((new Big(H4)).times(BIT32)).toString();
+                H4 = +H4.plus(BIT32).toString();
+            }
+        } else {
+            //Number写入，支持到2^53-1的精度
+            val = +value;
+            if (val > 0){
+                H4 = Math.floor(val/BIT32);
+                L4 = val - H4 * BIT32;
+            } else {
+                H4 = Math.floor(val/BIT32);
+                L4 = val - H4 * BIT32;
+                H4 += BIT32;
+            }
+        }
+        this._buffer.writeUInt32BE(H4, this._position);
+        this._buffer.writeUInt32BE(L4, this._position + 4);
+    }
     this._position += 8;
     this._length = this._position;
 }
@@ -586,6 +590,18 @@ Tars.BinBuffer.prototype.readUInt32 = function () {
 }
 
 Tars.BinBuffer.prototype.readInt64 = function(bString) {
+    //nodejs v12+ 支持bigint，性能比big.js好
+    if(typeof this._buffer.readBigInt64BE  === "function"){
+        var bigInt =  this._buffer.readBigInt64BE(this._position);
+        this._position += 8;
+        if(bString === true || bString === 1){
+            return bigInt.toString();
+        }
+        if(bString === 2){
+            return bigInt;
+        }
+        return Number(bigInt);
+    }
     var H4 = this._buffer.readUInt32BE(this._position);
     var L4 = this._buffer.readUInt32BE(this._position + 4);
     this._position += 8;
@@ -745,7 +761,7 @@ Tars.TarsOutputStream.prototype.writeInt32 = function (tag, value) {
 }
 
 Tars.TarsOutputStream.prototype.writeInt64 = function (tag, value, bString) {
-    var val = +value;
+    var val = Number(value);
     if (val >= -2147483648 && val <= 2147483647) {
         this.writeInt32(tag, val);
         return;
