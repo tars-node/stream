@@ -1103,7 +1103,7 @@ Tars.TarsInputStream.prototype.readString = function (tag, require, DEFAULT_VALU
 }
 
 Tars.TarsInputStream.prototype.readStruct = function (tag, require, TYPE_T) {
-    if (this._skipToTag(tag, require) == false) { return  new TYPE_T(); }
+    if (this._skipToTag(tag, require) == false) { return  TYPE_T.new(this); }
 
     var head = this._readFrom();
     if (head.type != Tars.DataHelp.EN_STRUCTBEGIN) {
